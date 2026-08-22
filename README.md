@@ -19,6 +19,15 @@ from the backend's live OpenAPI spec.
 > original names — renaming those is a real (and risky) technical change,
 > not a branding one, so it was left out of this pass.
 
+## Live deployment
+
+- **Dashboard**: https://serviceline-dashboard.pages.dev
+- **Backend API**: https://odyssey-backend.swekshas123.workers.dev (try `/health` — the bare root has no route and 404s by design, since this is a JSON API with no landing page)
+
+Backend runs on Cloudflare Workers against a live Neon Postgres database;
+frontend is Expo's static web export deployed to Cloudflare Pages, built
+with `EXPO_PUBLIC_API_URL` pointed at the Worker above.
+
 ## Stack
 
 - **Backend**: [Hono](https://hono.dev) + [`@hono/zod-openapi`](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) on Cloudflare Workers
