@@ -5,6 +5,7 @@ node_modules/
 dist/
 .turbo/
 *.tsbuildinfo
+.wrangler/
 
 # env / secrets
 .env

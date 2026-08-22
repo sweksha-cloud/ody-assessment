@@ -1,26 +1,19 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { canTransition, getNextValidStatuses, ORDER_STATUSES } from "@odyssey/shared";
+import { canTransition, getNextValidStatuses } from "@odyssey/shared";
 import { eq, inArray } from "drizzle-orm";
-import {
-  customers,
-  customersSelectSchema,
-  menuItems,
-  menuItemsSelectSchema,
-  orderingSettings,
-  orderItems,
-  orderItemsSelectSchema,
-  orders,
-  ordersSelectSchema,
-} from "../db/schema";
+import { customers, menuItems, orderingSettings, orderItems, orders } from "../db/schema";
 import type { AppEnv } from "../env";
+import { CustomerSchema, MenuItemSchema, OrderItemSchema, OrderSchema, OrderStatusSchema } from "../openapi-schemas";
 
 const ErrorSchema = z.object({ error: z.string() });
 const IdParamSchema = z.object({ id: z.string().uuid() });
-const OrderStatusSchema = z.enum(ORDER_STATUSES);
 
-const CustomerSummarySchema = customersSelectSchema
-  .pick({ id: true, name: true, email: true, phone: true })
-  .openapi("OrderCustomerSummary");
+const CustomerSummarySchema = CustomerSchema.pick({
+  id: true,
+  name: true,
+  email: true,
+  phone: true,
+}).openapi("OrderCustomerSummary");
 
 function toCustomerSummary(customer: typeof customers.$inferSelect) {
   return {
@@ -31,24 +24,20 @@ function toCustomerSummary(customer: typeof customers.$inferSelect) {
   };
 }
 
-const OrderItemWithMenuItemSchema = orderItemsSelectSchema
-  .extend({ menuItem: menuItemsSelectSchema })
-  .openapi("OrderItemWithMenuItem");
+const OrderItemWithMenuItemSchema = OrderItemSchema.extend({ menuItem: MenuItemSchema }).openapi(
+  "OrderItemWithMenuItem",
+);
 
-const OrderListItemSchema = ordersSelectSchema
-  .extend({
-    allowedTransitions: z.array(OrderStatusSchema),
-    customer: CustomerSummarySchema,
-  })
-  .openapi("OrderListItem");
+const OrderListItemSchema = OrderSchema.extend({
+  allowedTransitions: z.array(OrderStatusSchema),
+  customer: CustomerSummarySchema,
+}).openapi("OrderListItem");
 
-const OrderDetailSchema = ordersSelectSchema
-  .extend({
-    allowedTransitions: z.array(OrderStatusSchema),
-    customer: CustomerSummarySchema,
-    orderItems: z.array(OrderItemWithMenuItemSchema),
-  })
-  .openapi("OrderDetail");
+const OrderDetailSchema = OrderSchema.extend({
+  allowedTransitions: z.array(OrderStatusSchema),
+  customer: CustomerSummarySchema,
+  orderItems: z.array(OrderItemWithMenuItemSchema),
+}).openapi("OrderDetail");
 
 const CreateOrderCustomerSchema = z.object({
   name: z.string().min(1),
@@ -82,6 +71,7 @@ export const orderRoutes = new OpenAPIHono<AppEnv>();
 
 orderRoutes.openapi(
   createRoute({
+    tags: ["Orders"],
     method: "get",
     path: "/orders",
     request: { query: z.object({ status: OrderStatusSchema.optional() }) },
@@ -113,6 +103,7 @@ orderRoutes.openapi(
 
 orderRoutes.openapi(
   createRoute({
+    tags: ["Orders"],
     method: "get",
     path: "/orders/{id}",
     request: { params: IdParamSchema },
@@ -148,6 +139,7 @@ orderRoutes.openapi(
 
 orderRoutes.openapi(
   createRoute({
+    tags: ["Orders"],
     method: "post",
     path: "/orders",
     request: { body: { content: { "application/json": { schema: CreateOrderSchema } } } },
@@ -249,6 +241,7 @@ orderRoutes.openapi(
 
 orderRoutes.openapi(
   createRoute({
+    tags: ["Orders"],
     method: "patch",
     path: "/orders/{id}/status",
     request: {

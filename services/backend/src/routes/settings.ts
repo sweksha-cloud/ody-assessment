@@ -1,13 +1,13 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
-import { orderingSettings, orderingSettingsSelectSchema } from "../db/schema";
+import { orderingSettings } from "../db/schema";
 import type { AppEnv } from "../env";
+import { OrderingSettingsSchema } from "../openapi-schemas";
 
 const ErrorSchema = z.object({ error: z.string() });
 
-const SettingsSchema = orderingSettingsSelectSchema.openapi("OrderingSettings");
-const UpdateSettingsSchema = orderingSettingsSelectSchema
-  .omit({ id: true })
+const SettingsSchema = OrderingSettingsSchema;
+const UpdateSettingsSchema = OrderingSettingsSchema.omit({ id: true })
   .partial()
   .openapi("UpdateOrderingSettings");
 
@@ -15,6 +15,7 @@ export const settingsRoutes = new OpenAPIHono<AppEnv>();
 
 settingsRoutes.openapi(
   createRoute({
+    tags: ["Settings"],
     method: "get",
     path: "/settings",
     responses: {
@@ -38,6 +39,7 @@ settingsRoutes.openapi(
 
 settingsRoutes.openapi(
   createRoute({
+    tags: ["Settings"],
     method: "patch",
     path: "/settings",
     request: { body: { content: { "application/json": { schema: UpdateSettingsSchema } } } },

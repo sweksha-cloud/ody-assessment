@@ -97,6 +97,10 @@ importers:
         version: 5.9.3
 
   packages/types:
+    dependencies:
+      '@odyssey/api-client':
+        specifier: workspace:*
+        version: link:../api-client
     devDependencies:
       typescript:
         specifier: ^5.7.0

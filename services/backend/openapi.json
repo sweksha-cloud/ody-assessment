@@ -274,6 +274,63 @@
           "phone"
         ]
       },
+      "OrderStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "confirmed",
+          "preparing",
+          "ready",
+          "completed",
+          "cancelled"
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "customerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "subtotalCents": {
+            "type": "number"
+          },
+          "taxCents": {
+            "type": "number"
+          },
+          "totalCents": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "customerId",
+          "status",
+          "subtotalCents",
+          "taxCents",
+          "totalCents",
+          "notes",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "CustomerDetail": {
         "allOf": [
           {
@@ -285,58 +342,7 @@
               "orders": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "customerId": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "pending",
-                        "confirmed",
-                        "preparing",
-                        "ready",
-                        "completed",
-                        "cancelled"
-                      ]
-                    },
-                    "subtotalCents": {
-                      "type": "number"
-                    },
-                    "taxCents": {
-                      "type": "number"
-                    },
-                    "totalCents": {
-                      "type": "number"
-                    },
-                    "notes": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "createdAt": {
-                      "type": "string"
-                    },
-                    "updatedAt": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "customerId",
-                    "status",
-                    "subtotalCents",
-                    "taxCents",
-                    "totalCents",
-                    "notes",
-                    "createdAt",
-                    "updatedAt"
-                  ]
+                  "$ref": "#/components/schemas/Order"
                 }
               }
             },
@@ -389,79 +395,31 @@
         ]
       },
       "OrderListItem": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Order"
           },
-          "customerId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "pending",
-              "confirmed",
-              "preparing",
-              "ready",
-              "completed",
-              "cancelled"
+          {
+            "type": "object",
+            "properties": {
+              "allowedTransitions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OrderStatus"
+                }
+              },
+              "customer": {
+                "$ref": "#/components/schemas/OrderCustomerSummary"
+              }
+            },
+            "required": [
+              "allowedTransitions",
+              "customer"
             ]
-          },
-          "subtotalCents": {
-            "type": "number"
-          },
-          "taxCents": {
-            "type": "number"
-          },
-          "totalCents": {
-            "type": "number"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "allowedTransitions": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "pending",
-                "confirmed",
-                "preparing",
-                "ready",
-                "completed",
-                "cancelled"
-              ]
-            }
-          },
-          "customer": {
-            "$ref": "#/components/schemas/OrderCustomerSummary"
           }
-        },
-        "required": [
-          "id",
-          "customerId",
-          "status",
-          "subtotalCents",
-          "taxCents",
-          "totalCents",
-          "notes",
-          "createdAt",
-          "updatedAt",
-          "allowedTransitions",
-          "customer"
         ]
       },
-      "OrderItemWithMenuItem": {
+      "OrderItem": {
         "type": "object",
         "properties": {
           "id": {
@@ -484,57 +442,6 @@
           },
           "lineTotalCents": {
             "type": "number"
-          },
-          "menuItem": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "categoryId": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "name": {
-                "type": "string"
-              },
-              "description": {
-                "type": "string",
-                "nullable": true
-              },
-              "priceCents": {
-                "type": "number"
-              },
-              "isAvailable": {
-                "type": "boolean"
-              },
-              "imageUrl": {
-                "type": "string",
-                "nullable": true
-              },
-              "sortOrder": {
-                "type": "number"
-              },
-              "createdAt": {
-                "type": "string"
-              },
-              "updatedAt": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "id",
-              "categoryId",
-              "name",
-              "description",
-              "priceCents",
-              "isAvailable",
-              "imageUrl",
-              "sortOrder",
-              "createdAt",
-              "updatedAt"
-            ]
           }
         },
         "required": [
@@ -543,88 +450,57 @@
           "menuItemId",
           "quantity",
           "unitPriceCents",
-          "lineTotalCents",
-          "menuItem"
+          "lineTotalCents"
+        ]
+      },
+      "OrderItemWithMenuItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OrderItem"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "menuItem": {
+                "$ref": "#/components/schemas/MenuItem"
+              }
+            },
+            "required": [
+              "menuItem"
+            ]
+          }
         ]
       },
       "OrderDetail": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Order"
           },
-          "customerId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "pending",
-              "confirmed",
-              "preparing",
-              "ready",
-              "completed",
-              "cancelled"
+          {
+            "type": "object",
+            "properties": {
+              "allowedTransitions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OrderStatus"
+                }
+              },
+              "customer": {
+                "$ref": "#/components/schemas/OrderCustomerSummary"
+              },
+              "orderItems": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OrderItemWithMenuItem"
+                }
+              }
+            },
+            "required": [
+              "allowedTransitions",
+              "customer",
+              "orderItems"
             ]
-          },
-          "subtotalCents": {
-            "type": "number"
-          },
-          "taxCents": {
-            "type": "number"
-          },
-          "totalCents": {
-            "type": "number"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "allowedTransitions": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "pending",
-                "confirmed",
-                "preparing",
-                "ready",
-                "completed",
-                "cancelled"
-              ]
-            }
-          },
-          "customer": {
-            "$ref": "#/components/schemas/OrderCustomerSummary"
-          },
-          "orderItems": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OrderItemWithMenuItem"
-            }
           }
-        },
-        "required": [
-          "id",
-          "customerId",
-          "status",
-          "subtotalCents",
-          "taxCents",
-          "totalCents",
-          "notes",
-          "createdAt",
-          "updatedAt",
-          "allowedTransitions",
-          "customer",
-          "orderItems"
         ]
       },
       "CreateOrder": {
@@ -687,15 +563,7 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
-            "enum": [
-              "pending",
-              "confirmed",
-              "preparing",
-              "ready",
-              "completed",
-              "cancelled"
-            ]
+            "$ref": "#/components/schemas/OrderStatus"
           }
         },
         "required": [
@@ -795,6 +663,9 @@
   "paths": {
     "/health": {
       "get": {
+        "tags": [
+          "Health"
+        ],
         "responses": {
           "200": {
             "description": "Service health check",
@@ -811,6 +682,9 @@
     },
     "/menu/categories": {
       "get": {
+        "tags": [
+          "Menu"
+        ],
         "responses": {
           "200": {
             "description": "List menu categories",
@@ -828,6 +702,9 @@
         }
       },
       "post": {
+        "tags": [
+          "Menu"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -853,6 +730,9 @@
     },
     "/menu/categories/{id}": {
       "patch": {
+        "tags": [
+          "Menu"
+        ],
         "parameters": [
           {
             "schema": {
@@ -907,6 +787,9 @@
     },
     "/menu/items": {
       "get": {
+        "tags": [
+          "Menu"
+        ],
         "parameters": [
           {
             "schema": {
@@ -935,6 +818,9 @@
         }
       },
       "post": {
+        "tags": [
+          "Menu"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -960,6 +846,9 @@
     },
     "/menu/items/{id}": {
       "patch": {
+        "tags": [
+          "Menu"
+        ],
         "parameters": [
           {
             "schema": {
@@ -1014,6 +903,9 @@
     },
     "/customers": {
       "get": {
+        "tags": [
+          "Customers"
+        ],
         "responses": {
           "200": {
             "description": "List customers with computed order count / spend",
@@ -1031,6 +923,9 @@
         }
       },
       "post": {
+        "tags": [
+          "Customers"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1056,6 +951,9 @@
     },
     "/customers/{id}": {
       "get": {
+        "tags": [
+          "Customers"
+        ],
         "parameters": [
           {
             "schema": {
@@ -1099,6 +997,9 @@
         }
       },
       "patch": {
+        "tags": [
+          "Customers"
+        ],
         "parameters": [
           {
             "schema": {
@@ -1153,18 +1054,13 @@
     },
     "/orders": {
       "get": {
+        "tags": [
+          "Orders"
+        ],
         "parameters": [
           {
             "schema": {
-              "type": "string",
-              "enum": [
-                "pending",
-                "confirmed",
-                "preparing",
-                "ready",
-                "completed",
-                "cancelled"
-              ]
+              "$ref": "#/components/schemas/OrderStatus"
             },
             "required": false,
             "name": "status",
@@ -1188,6 +1084,9 @@
         }
       },
       "post": {
+        "tags": [
+          "Orders"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1249,6 +1148,9 @@
     },
     "/orders/{id}": {
       "get": {
+        "tags": [
+          "Orders"
+        ],
         "parameters": [
           {
             "schema": {
@@ -1294,6 +1196,9 @@
     },
     "/orders/{id}/status": {
       "patch": {
+        "tags": [
+          "Orders"
+        ],
         "parameters": [
           {
             "schema": {
@@ -1366,6 +1271,9 @@
     },
     "/settings": {
       "get": {
+        "tags": [
+          "Settings"
+        ],
         "responses": {
           "200": {
             "description": "The singleton ordering settings row",
@@ -1398,6 +1306,9 @@
         }
       },
       "patch": {
+        "tags": [
+          "Settings"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1441,6 +1352,9 @@
     },
     "/kpis": {
       "get": {
+        "tags": [
+          "Kpis"
+        ],
         "responses": {
           "200": {
             "description": "Dashboard KPI summary",

@@ -1,33 +1,33 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
-import {
-  menuCategories,
-  menuCategoriesSelectSchema,
-  menuItems,
-  menuItemsSelectSchema,
-} from "../db/schema";
+import { menuCategories, menuItems } from "../db/schema";
 import { firstOrThrow } from "../db/util";
 import type { AppEnv } from "../env";
+import { MenuCategorySchema, MenuItemSchema } from "../openapi-schemas";
 
 const ErrorSchema = z.object({ error: z.string() });
 const IdParamSchema = z.object({ id: z.string().uuid() });
 
-const CategorySchema = menuCategoriesSelectSchema.openapi("MenuCategory");
-const CreateCategorySchema = menuCategoriesSelectSchema
-  .omit({ id: true, createdAt: true, updatedAt: true })
-  .openapi("CreateMenuCategory");
+const CategorySchema = MenuCategorySchema;
+const CreateCategorySchema = MenuCategorySchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).openapi("CreateMenuCategory");
 const UpdateCategorySchema = CreateCategorySchema.partial().openapi("UpdateMenuCategory");
 
-const MenuItemSchema = menuItemsSelectSchema.openapi("MenuItem");
-const CreateMenuItemSchema = menuItemsSelectSchema
-  .omit({ id: true, createdAt: true, updatedAt: true })
-  .openapi("CreateMenuItem");
+const CreateMenuItemSchema = MenuItemSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).openapi("CreateMenuItem");
 const UpdateMenuItemSchema = CreateMenuItemSchema.partial().openapi("UpdateMenuItem");
 
 export const menuRoutes = new OpenAPIHono<AppEnv>();
 
 menuRoutes.openapi(
   createRoute({
+    tags: ["Menu"],
     method: "get",
     path: "/menu/categories",
     responses: {
@@ -46,6 +46,7 @@ menuRoutes.openapi(
 
 menuRoutes.openapi(
   createRoute({
+    tags: ["Menu"],
     method: "post",
     path: "/menu/categories",
     request: { body: { content: { "application/json": { schema: CreateCategorySchema } } } },
@@ -66,6 +67,7 @@ menuRoutes.openapi(
 
 menuRoutes.openapi(
   createRoute({
+    tags: ["Menu"],
     method: "patch",
     path: "/menu/categories/{id}",
     request: {
@@ -99,6 +101,7 @@ menuRoutes.openapi(
 
 menuRoutes.openapi(
   createRoute({
+    tags: ["Menu"],
     method: "get",
     path: "/menu/items",
     request: { query: z.object({ categoryId: z.string().uuid().optional() }) },
@@ -123,6 +126,7 @@ menuRoutes.openapi(
 
 menuRoutes.openapi(
   createRoute({
+    tags: ["Menu"],
     method: "post",
     path: "/menu/items",
     request: { body: { content: { "application/json": { schema: CreateMenuItemSchema } } } },
@@ -143,6 +147,7 @@ menuRoutes.openapi(
 
 menuRoutes.openapi(
   createRoute({
+    tags: ["Menu"],
     method: "patch",
     path: "/menu/items/{id}",
     request: {

@@ -8,6 +8,7 @@ const HealthResponseSchema = z
   .openapi("HealthResponse");
 
 const healthRoute = createRoute({
+  tags: ["Health"],
   method: "get",
   path: "/health",
   responses: {

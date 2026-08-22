@@ -1,16 +1,18 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
-import { customers, customersSelectSchema, ordersSelectSchema } from "../db/schema";
+import { customers } from "../db/schema";
 import { firstOrThrow } from "../db/util";
 import type { AppEnv } from "../env";
+import { CustomerSchema, OrderSchema } from "../openapi-schemas";
 
 const ErrorSchema = z.object({ error: z.string() });
 const IdParamSchema = z.object({ id: z.string().uuid() });
 
-const CustomerSchema = customersSelectSchema.openapi("Customer");
-const CreateCustomerSchema = customersSelectSchema
-  .omit({ id: true, createdAt: true, updatedAt: true })
-  .openapi("CreateCustomer");
+const CreateCustomerSchema = CustomerSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).openapi("CreateCustomer");
 const UpdateCustomerSchema = CreateCustomerSchema.partial().openapi("UpdateCustomer");
 
 // Spend/order-count are computed via query, never denormalized onto the table.
@@ -20,13 +22,14 @@ const CustomerWithStatsSchema = CustomerSchema.extend({
 }).openapi("CustomerWithStats");
 
 const CustomerDetailSchema = CustomerSchema.extend({
-  orders: z.array(ordersSelectSchema),
+  orders: z.array(OrderSchema),
 }).openapi("CustomerDetail");
 
 export const customerRoutes = new OpenAPIHono<AppEnv>();
 
 customerRoutes.openapi(
   createRoute({
+    tags: ["Customers"],
     method: "get",
     path: "/customers",
     responses: {
@@ -57,6 +60,7 @@ customerRoutes.openapi(
 
 customerRoutes.openapi(
   createRoute({
+    tags: ["Customers"],
     method: "post",
     path: "/customers",
     request: { body: { content: { "application/json": { schema: CreateCustomerSchema } } } },
@@ -77,6 +81,7 @@ customerRoutes.openapi(
 
 customerRoutes.openapi(
   createRoute({
+    tags: ["Customers"],
     method: "get",
     path: "/customers/{id}",
     request: { params: IdParamSchema },
@@ -105,6 +110,7 @@ customerRoutes.openapi(
 
 customerRoutes.openapi(
   createRoute({
+    tags: ["Customers"],
     method: "patch",
     path: "/customers/{id}",
     request: {

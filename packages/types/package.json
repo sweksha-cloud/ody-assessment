@@ -8,6 +8,9 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@odyssey/api-client": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.7.0"
   },

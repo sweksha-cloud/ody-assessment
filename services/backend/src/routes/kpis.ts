@@ -30,6 +30,7 @@ export const kpiRoutes = new OpenAPIHono<AppEnv>();
 
 kpiRoutes.openapi(
   createRoute({
+    tags: ["Kpis"],
     method: "get",
     path: "/kpis",
     responses: {
