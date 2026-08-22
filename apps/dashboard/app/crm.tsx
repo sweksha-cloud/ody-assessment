@@ -14,6 +14,8 @@ import {
   EmptyState,
   ErrorState,
   layout,
+  List,
+  ListRow,
   Modal,
   Skeleton,
   spacing,
@@ -32,18 +34,20 @@ const EMPTY_FORM: CustomerFormState = { name: "", email: "", phone: "" };
 
 function CustomerRowSkeleton() {
   return (
-    <Card>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}>
-        <View style={{ gap: spacing[2] }}>
+    <ListRow
+      left={
+        <>
           <Skeleton width={130} height={14} />
           <Skeleton width={170} height={12} />
-        </View>
-        <View style={{ alignItems: "flex-end", gap: spacing[2] }}>
+        </>
+      }
+      right={
+        <>
           <Skeleton width={60} height={14} />
           <Skeleton width={50} height={12} />
-        </View>
-      </View>
-    </Card>
+        </>
+      }
+    />
   );
 }
 
@@ -129,11 +133,11 @@ export default function CrmScreen() {
         </View>
 
         {customersQuery.isLoading && (
-          <View style={{ gap: spacing[3] }}>
+          <List>
             <CustomerRowSkeleton />
             <CustomerRowSkeleton />
             <CustomerRowSkeleton />
-          </View>
+          </List>
         )}
 
         {customersQuery.isError && (
@@ -153,33 +157,35 @@ export default function CrmScreen() {
           </Card>
         )}
 
-        <View style={{ gap: spacing[3] }}>
+        <List>
           {customers.map((customer) => (
-            <Card key={customer.id}>
-              <View
-                style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}
-              >
-                <View style={{ flex: 1, gap: spacing[1] }}>
+            <ListRow
+              key={customer.id}
+              left={
+                <>
                   <Button
                     label={customer.name}
                     variant="ghost"
                     size="sm"
+                    alignSelf="flex-start"
                     onPress={() => openDetail(customer.id, customer.name, customer.email, customer.phone)}
                   />
                   <Text variant="caption" color="muted">
                     {customer.email ?? "No email"} {customer.phone ? `· ${customer.phone}` : ""}
                   </Text>
-                </View>
-                <View style={{ alignItems: "flex-end", gap: spacing[1] }}>
+                </>
+              }
+              right={
+                <>
                   <Text variant="bodyMedium">{formatCents(customer.totalSpentCents)}</Text>
                   <Text variant="caption" color="muted">
                     {customer.orderCount} order{customer.orderCount === 1 ? "" : "s"}
                   </Text>
-                </View>
-              </View>
-            </Card>
+                </>
+              }
+            />
           ))}
-        </View>
+        </List>
       </View>
 
       <Modal visible={createOpen} onClose={() => setCreateOpen(false)} title="New customer">

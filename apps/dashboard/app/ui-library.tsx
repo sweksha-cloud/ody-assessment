@@ -7,6 +7,8 @@ import {
   EmptyState,
   ErrorState,
   layout,
+  List,
+  ListRow,
   Modal,
   neutral,
   Select,
@@ -192,6 +194,55 @@ export default function UiLibraryScreen() {
               </Text>
             </View>
           </Card>
+        </Section>
+
+        <Divider />
+
+        <Section title="Lists">
+          <View style={{ gap: spacing[3] }}>
+            <Text variant="label" color="secondary">
+              LIST + LISTROW — the left/right row shape used for Orders, Menu items, and the CRM customer list. A
+              row nested inside an existing Card (e.g. items under a category) uses surface=false.
+            </Text>
+            <List>
+              <ListRow
+                left={
+                  <>
+                    <Text variant="bodyMedium">Alice Nguyen</Text>
+                    <Text variant="caption" color="muted">
+                      alice@example.com
+                    </Text>
+                  </>
+                }
+                right={
+                  <>
+                    <Text variant="bodyMedium">$86.23</Text>
+                    <Text variant="caption" color="muted">
+                      3 orders
+                    </Text>
+                  </>
+                }
+              />
+              <ListRow
+                left={
+                  <>
+                    <Text variant="bodyMedium">Bob Martinez</Text>
+                    <Text variant="caption" color="muted">
+                      bob@example.com
+                    </Text>
+                  </>
+                }
+                right={
+                  <>
+                    <Text variant="bodyMedium">$23.76</Text>
+                    <Text variant="caption" color="muted">
+                      2 orders
+                    </Text>
+                  </>
+                }
+              />
+            </List>
+          </View>
         </Section>
 
         <Divider />

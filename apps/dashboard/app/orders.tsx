@@ -19,6 +19,8 @@ import {
   EmptyState,
   ErrorState,
   layout,
+  List,
+  ListRow,
   Modal,
   Select,
   Skeleton,
@@ -47,17 +49,18 @@ const FILTERS: { value: FilterValue; label: string }[] = [
 function OrderCardSkeleton() {
   return (
     <Card style={{ gap: spacing[4] }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <View style={{ gap: spacing[2] }}>
-          <Skeleton width={140} height={16} />
-          <Skeleton width={90} height={12} />
-        </View>
-        <Skeleton width={72} height={22} radius="full" />
-      </View>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Skeleton width={70} height={22} />
-        <Skeleton width={100} height={32} />
-      </View>
+      <ListRow
+        surface={false}
+        style={{ alignItems: "flex-start" }}
+        left={
+          <>
+            <Skeleton width={140} height={16} />
+            <Skeleton width={90} height={12} />
+          </>
+        }
+        right={<Skeleton width={72} height={22} radius="full" />}
+      />
+      <ListRow surface={false} left={<Skeleton width={70} height={22} />} right={<Skeleton width={100} height={32} />} />
     </Card>
   );
 }
@@ -118,11 +121,11 @@ export default function OrdersScreen() {
         </View>
 
         {isLoading && (
-          <View style={{ gap: spacing[4] }}>
+          <List gap={4}>
             <OrderCardSkeleton />
             <OrderCardSkeleton />
             <OrderCardSkeleton />
-          </View>
+          </List>
         )}
 
         {isError && (
@@ -137,18 +140,22 @@ export default function OrdersScreen() {
           </Card>
         )}
 
-        <View style={{ gap: spacing[4] }}>
+        <List gap={4}>
           {orders.map((order) => (
             <Card key={order.id} style={{ gap: spacing[4] }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: spacing[3] }}>
-                <View style={{ gap: spacing[1] }}>
-                  <Text variant="bodyMedium">{order.customer.name}</Text>
-                  <Text variant="caption" color="muted">
-                    {formatDateTime(order.createdAt)}
-                  </Text>
-                </View>
-                <StatusBadge status={order.status} />
-              </View>
+              <ListRow
+                surface={false}
+                style={{ alignItems: "flex-start" }}
+                left={
+                  <>
+                    <Text variant="bodyMedium">{order.customer.name}</Text>
+                    <Text variant="caption" color="muted">
+                      {formatDateTime(order.createdAt)}
+                    </Text>
+                  </>
+                }
+                right={<StatusBadge status={order.status} />}
+              />
 
               {order.notes ? (
                 <Text variant="body" color="secondary">
@@ -156,31 +163,33 @@ export default function OrdersScreen() {
                 </Text>
               ) : null}
 
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text variant="h3">{formatCents(order.totalCents)}</Text>
-
-                {order.allowedTransitions.length > 0 ? (
-                  <View style={{ flexDirection: "row", gap: spacing[3] }}>
-                    {order.allowedTransitions.map((next) => (
-                      <Button
-                        key={next}
-                        label={STATUS_LABELS[next]}
-                        size="sm"
-                        variant={next === "cancelled" ? "danger" : "secondary"}
-                        loading={transitionMutation.isPending && transitionMutation.variables?.id === order.id}
-                        onPress={() => transitionMutation.mutate({ id: order.id, data: { status: next } })}
-                      />
-                    ))}
-                  </View>
-                ) : (
-                  <Text variant="caption" color="muted">
-                    No further actions
-                  </Text>
-                )}
-              </View>
+              <ListRow
+                surface={false}
+                left={<Text variant="h3">{formatCents(order.totalCents)}</Text>}
+                right={
+                  order.allowedTransitions.length > 0 ? (
+                    <View style={{ flexDirection: "row", gap: spacing[3] }}>
+                      {order.allowedTransitions.map((next) => (
+                        <Button
+                          key={next}
+                          label={STATUS_LABELS[next]}
+                          size="sm"
+                          variant={next === "cancelled" ? "danger" : "secondary"}
+                          loading={transitionMutation.isPending && transitionMutation.variables?.id === order.id}
+                          onPress={() => transitionMutation.mutate({ id: order.id, data: { status: next } })}
+                        />
+                      ))}
+                    </View>
+                  ) : (
+                    <Text variant="caption" color="muted">
+                      No further actions
+                    </Text>
+                  )
+                }
+              />
             </Card>
           ))}
-        </View>
+        </List>
       </View>
     </ScrollView>
   );

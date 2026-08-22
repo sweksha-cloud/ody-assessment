@@ -4,6 +4,8 @@ export * from "./Card";
 export * from "./Divider";
 export * from "./EmptyState";
 export * from "./ErrorState";
+export * from "./List";
+export * from "./ListRow";
 export * from "./Modal";
 export * from "./Select";
 export * from "./Skeleton";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, Platform, Pressable, type PressableProps, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, type PressableProps, StyleSheet, type ViewStyle, View } from "react-native";
 import { colors } from "../tokens/colors";
 import { radii } from "../tokens/radii";
 import { spacing } from "../tokens/spacing";
@@ -14,6 +14,11 @@ export type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   size?: ButtonSize;
   loading?: boolean;
   fullWidth?: boolean;
+  // Overrides the parent's cross-axis stretch (e.g. a flex:1 column
+  // defaulting children to full width) — for a Button used inline as a
+  // clickable label rather than a full-width CTA. Leave unset everywhere
+  // else; existing full-width-looking buttons rely on the stretch default.
+  alignSelf?: ViewStyle["alignSelf"];
 };
 
 const sizeStyles: Record<ButtonSize, { paddingVertical: number; paddingHorizontal: number; fontVariant: "body" | "bodyMedium" }> = {
@@ -60,6 +65,7 @@ export function Button({
   size = "md",
   loading = false,
   fullWidth = false,
+  alignSelf,
   disabled,
   onHoverIn,
   onHoverOut,
@@ -104,6 +110,7 @@ export function Button({
             paddingVertical,
             paddingHorizontal,
             width: fullWidth ? "100%" : undefined,
+            alignSelf,
             opacity: isDisabled && variant === "ghost" ? 0.5 : 1,
           },
           focused && !isDisabled ? styles.focusRing : null,

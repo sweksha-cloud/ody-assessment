@@ -18,6 +18,8 @@ import {
   EmptyState,
   ErrorState,
   layout,
+  List,
+  ListRow,
   Modal,
   Select,
   Skeleton,
@@ -52,17 +54,21 @@ function MenuCategorySkeleton() {
         <Skeleton width={90} height={28} />
       </View>
       <Divider />
-      <View style={{ gap: spacing[4] }}>
+      <List gap={4}>
         {[0, 1].map((i) => (
-          <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <View style={{ gap: spacing[1] }}>
-              <Skeleton width={160} height={14} />
-              <Skeleton width={90} height={12} />
-            </View>
-            <Skeleton width={44} height={24} />
-          </View>
+          <ListRow
+            key={i}
+            surface={false}
+            left={
+              <>
+                <Skeleton width={160} height={14} />
+                <Skeleton width={90} height={12} />
+              </>
+            }
+            right={<Skeleton width={44} height={24} />}
+          />
         ))}
-      </View>
+      </List>
     </Card>
   );
 }
@@ -234,25 +240,36 @@ export default function MenuScreen() {
                   No items in this category yet.
                 </Text>
               ) : (
-                <View style={{ gap: spacing[4] }}>
+                <List gap={4}>
                   {categoryItems.map((item) => (
-                    <View
+                    <ListRow
                       key={item.id}
-                      style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}
-                    >
-                      <View style={{ flex: 1, gap: spacing[1] }}>
-                        <Button label={item.name} variant="ghost" size="sm" onPress={() => openEditItem(item)} />
-                        {item.description ? (
-                          <Text variant="caption" color="muted">
-                            {item.description}
-                          </Text>
-                        ) : null}
-                      </View>
-                      <Text variant="bodyMedium">{formatCents(item.priceCents)}</Text>
-                      <Switch value={item.isAvailable} onValueChange={() => toggleAvailability(item)} />
-                    </View>
+                      surface={false}
+                      left={
+                        <>
+                          <Button
+                            label={item.name}
+                            variant="ghost"
+                            size="sm"
+                            alignSelf="flex-start"
+                            onPress={() => openEditItem(item)}
+                          />
+                          {item.description ? (
+                            <Text variant="caption" color="muted">
+                              {item.description}
+                            </Text>
+                          ) : null}
+                        </>
+                      }
+                      right={
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
+                          <Text variant="bodyMedium">{formatCents(item.priceCents)}</Text>
+                          <Switch value={item.isAvailable} onValueChange={() => toggleAvailability(item)} />
+                        </View>
+                      }
+                    />
                   ))}
-                </View>
+                </List>
               )}
             </Card>
           );
