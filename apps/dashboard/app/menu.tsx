@@ -20,8 +20,8 @@ import {
   layout,
   Modal,
   Select,
+  Skeleton,
   spacing,
-  Spinner,
   Switch,
   Text,
   TextField,
@@ -43,6 +43,29 @@ function centsToDollarsString(cents: number): string {
 
 type CategoryFormState = { name: string };
 type ItemFormState = { name: string; description: string; price: string; categoryId: string };
+
+function MenuCategorySkeleton() {
+  return (
+    <Card style={{ gap: spacing[5] }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Skeleton width={120} height={18} />
+        <Skeleton width={90} height={28} />
+      </View>
+      <Divider />
+      <View style={{ gap: spacing[4] }}>
+        {[0, 1].map((i) => (
+          <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+            <View style={{ gap: spacing[1] }}>
+              <Skeleton width={160} height={14} />
+              <Skeleton width={90} height={12} />
+            </View>
+            <Skeleton width={44} height={24} />
+          </View>
+        ))}
+      </View>
+    </Card>
+  );
+}
 
 export default function MenuScreen() {
   const queryClient = useQueryClient();
@@ -179,9 +202,10 @@ export default function MenuScreen() {
         </View>
 
         {isLoading && (
-          <Card>
-            <Spinner label="Loading menu…" />
-          </Card>
+          <View style={{ gap: spacing[5] }}>
+            <MenuCategorySkeleton />
+            <MenuCategorySkeleton />
+          </View>
         )}
 
         {isError && (

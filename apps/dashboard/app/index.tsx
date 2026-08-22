@@ -1,7 +1,16 @@
 import { useGetKpis } from "@odyssey/api-client";
 import { formatCents } from "@odyssey/shared";
-import { Card, colors, ErrorState, layout, spacing, Spinner, Text } from "@odyssey/ui";
+import { Card, colors, ErrorState, layout, Skeleton, spacing, Text } from "@odyssey/ui";
 import { ScrollView, View } from "react-native";
+
+function StatTileSkeleton() {
+  return (
+    <Card style={{ flexGrow: 1, flexBasis: 220, gap: spacing[3] }}>
+      <Skeleton width="60%" height={12} />
+      <Skeleton width="40%" height={28} />
+    </Card>
+  );
+}
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
@@ -36,9 +45,21 @@ export default function HomeScreen() {
         </View>
 
         {isLoading && (
-          <Card>
-            <Spinner label="Loading KPIs…" />
-          </Card>
+          <View style={{ gap: spacing[8] }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing[5] }}>
+              <StatTileSkeleton />
+              <StatTileSkeleton />
+              <StatTileSkeleton />
+            </View>
+            <Card style={{ gap: spacing[5] }}>
+              <Skeleton width="45%" height={20} />
+              <View style={{ gap: spacing[4] }}>
+                <Skeleton height={16} />
+                <Skeleton height={16} />
+                <Skeleton height={16} width="70%" />
+              </View>
+            </Card>
+          </View>
         )}
 
         {isError && (

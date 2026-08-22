@@ -15,6 +15,7 @@ import {
   ErrorState,
   layout,
   Modal,
+  Skeleton,
   spacing,
   Spinner,
   StatusBadge,
@@ -28,6 +29,23 @@ import { ScrollView, View } from "react-native";
 
 type CustomerFormState = { name: string; email: string; phone: string };
 const EMPTY_FORM: CustomerFormState = { name: "", email: "", phone: "" };
+
+function CustomerRowSkeleton() {
+  return (
+    <Card>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}>
+        <View style={{ gap: spacing[2] }}>
+          <Skeleton width={130} height={14} />
+          <Skeleton width={170} height={12} />
+        </View>
+        <View style={{ alignItems: "flex-end", gap: spacing[2] }}>
+          <Skeleton width={60} height={14} />
+          <Skeleton width={50} height={12} />
+        </View>
+      </View>
+    </Card>
+  );
+}
 
 export default function CrmScreen() {
   const queryClient = useQueryClient();
@@ -111,9 +129,11 @@ export default function CrmScreen() {
         </View>
 
         {customersQuery.isLoading && (
-          <Card>
-            <Spinner label="Loading customers…" />
-          </Card>
+          <View style={{ gap: spacing[3] }}>
+            <CustomerRowSkeleton />
+            <CustomerRowSkeleton />
+            <CustomerRowSkeleton />
+          </View>
         )}
 
         {customersQuery.isError && (

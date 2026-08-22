@@ -21,6 +21,7 @@ import {
   layout,
   Modal,
   Select,
+  Skeleton,
   spacing,
   Spinner,
   StatusBadge,
@@ -42,6 +43,24 @@ const FILTERS: { value: FilterValue; label: string }[] = [
   { value: "all", label: "All" },
   ...ORDER_STATUSES.map((status) => ({ value: status, label: STATUS_LABELS[status] })),
 ];
+
+function OrderCardSkeleton() {
+  return (
+    <Card style={{ gap: spacing[4] }}>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <View style={{ gap: spacing[2] }}>
+          <Skeleton width={140} height={16} />
+          <Skeleton width={90} height={12} />
+        </View>
+        <Skeleton width={72} height={22} radius="full" />
+      </View>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Skeleton width={70} height={22} />
+        <Skeleton width={100} height={32} />
+      </View>
+    </Card>
+  );
+}
 
 export default function OrdersScreen() {
   const [filter, setFilter] = useState<FilterValue>("all");
@@ -99,9 +118,11 @@ export default function OrdersScreen() {
         </View>
 
         {isLoading && (
-          <Card>
-            <Spinner label="Loading orders…" />
-          </Card>
+          <View style={{ gap: spacing[4] }}>
+            <OrderCardSkeleton />
+            <OrderCardSkeleton />
+            <OrderCardSkeleton />
+          </View>
         )}
 
         {isError && (

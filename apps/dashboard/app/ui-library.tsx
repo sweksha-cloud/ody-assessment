@@ -10,6 +10,7 @@ import {
   Modal,
   neutral,
   Select,
+  Skeleton,
   spacing,
   Spinner,
   StatusBadge,
@@ -253,9 +254,34 @@ export default function UiLibraryScreen() {
         <Divider />
 
         <Section title="Loading, empty, and error states">
-          <Card>
-            <Spinner label="Loading orders…" />
-          </Card>
+          <View style={{ gap: spacing[3] }}>
+            <Text variant="label" color="secondary">
+              SPINNER — indeterminate wait (modals, small panels)
+            </Text>
+            <Card>
+              <Spinner label="Loading orders…" />
+            </Card>
+          </View>
+
+          <View style={{ gap: spacing[3] }}>
+            <Text variant="label" color="secondary">
+              SKELETON — previews the shape of content that's about to arrive, so the layout doesn't jump once it
+              loads. Used for page-level list/card loading (Home, Orders, Menu, CRM).
+            </Text>
+            <Card style={{ gap: spacing[4] }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                <View style={{ gap: spacing[2] }}>
+                  <Skeleton width={140} height={16} />
+                  <Skeleton width={90} height={12} />
+                </View>
+                <Skeleton width={72} height={22} radius="full" />
+              </View>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                <Skeleton width={70} height={22} />
+                <Skeleton width={100} height={32} />
+              </View>
+            </Card>
+          </View>
           <Card>
             <EmptyState
               title="No orders yet"
