@@ -17,6 +17,7 @@ import {
   Divider,
   EmptyState,
   ErrorState,
+  FilterChip,
   List,
   ListRow,
   Modal,
@@ -97,13 +98,7 @@ export default function OrdersScreen() {
 
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing[3] }}>
         {FILTERS.map((f) => (
-          <Button
-            key={f.value}
-            label={f.label}
-            size="sm"
-            variant={filter === f.value ? "primary" : "secondary"}
-            onPress={() => setFilter(f.value)}
-          />
+          <FilterChip key={f.value} label={f.label} selected={filter === f.value} onPress={() => setFilter(f.value)} />
         ))}
       </View>
 
@@ -152,7 +147,11 @@ export default function OrdersScreen() {
 
             <ListRow
               surface={false}
-              left={<Text variant="h3">{formatCents(order.totalCents)}</Text>}
+              left={
+                <Text variant="h3" style={{ fontVariant: ["tabular-nums"] }}>
+                  {formatCents(order.totalCents)}
+                </Text>
+              }
               right={
                 order.allowedTransitions.length > 0 ? (
                   <View style={{ flexDirection: "row", gap: spacing[3] }}>

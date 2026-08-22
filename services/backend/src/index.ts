@@ -16,7 +16,7 @@ app.route("/", routes);
 app.doc("/openapi.json", {
   openapi: "3.1.0",
   info: {
-    title: "Odyssey Backend API",
+    title: "ServiceLine Backend API",
     version: "0.1.0",
   },
 });

@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { ActivityIndicator, Platform, Pressable, type PressableProps, StyleSheet, type ViewStyle, View } from "react-native";
+import { ActivityIndicator, Pressable, type PressableProps, StyleSheet, type ViewStyle, View } from "react-native";
 import { colors } from "../tokens/colors";
+import { focusRingStyle } from "../tokens/focusRing";
 import { controlHeight } from "../tokens/layout";
 import { radii } from "../tokens/radii";
 import { spacing } from "../tokens/spacing";
-import { Text } from "./Text";
+import { GradientView } from "./GradientView";
+import { Text, type TextColor } from "./Text";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -28,36 +30,32 @@ const sizeStyles: Record<ButtonSize, { paddingVertical: number; paddingHorizonta
   lg: { paddingVertical: spacing[4], paddingHorizontal: spacing[6], fontVariant: "bodyMedium" },
 };
 
-function variantColors(variant: ButtonVariant, state: "default" | "hovered" | "pressed" | "disabled") {
-  const base = {
-    primary: { bg: colors.brand[500], border: colors.brand[500], text: colors.textOnBrand },
-    secondary: { bg: colors.surface, border: colors.borderStrong, text: colors.textPrimary },
-    ghost: { bg: "transparent", border: "transparent", text: colors.textPrimary },
-    danger: { bg: colors.danger[500], border: colors.danger[500], text: colors.textOnBrand },
-  }[variant];
+type ButtonState = "default" | "hovered" | "pressed" | "disabled";
+type Tone = { bg: string; border: string; text: TextColor; scrim?: string };
 
+// primary uses the gradient fill (rendered separately, see GradientView
+// below) with a translucent midnight scrim for hover/press feedback —
+// "obvious" per the component spec, without needing discrete gradient
+// color stops per state.
+function toneFor(variant: ButtonVariant, state: ButtonState): Tone {
   if (state === "disabled") {
-    return { bg: colors.neutral[100], border: colors.neutral[200], text: colors.textMuted };
+    return { bg: colors.disabled.bg, border: colors.disabled.border, text: "muted" };
   }
-  if (state === "pressed") {
-    const pressedBg = {
-      primary: colors.brand[600],
-      secondary: colors.neutral[100],
-      ghost: colors.neutral[100],
-      danger: colors.danger[700],
-    }[variant];
-    return { ...base, bg: pressedBg };
+  if (variant === "secondary") {
+    const bg = state === "pressed" ? colors.neutral[100] : state === "hovered" ? colors.neutral[50] : colors.surface;
+    return { bg, border: colors.borderStrong, text: "primary" };
   }
-  if (state === "hovered") {
-    const hoveredBg = {
-      primary: colors.brand[600],
-      secondary: colors.neutral[50],
-      ghost: colors.neutral[50],
-      danger: colors.danger[700],
-    }[variant];
-    return { ...base, bg: hoveredBg };
+  if (variant === "ghost") {
+    const bg = state === "pressed" ? colors.neutral[200] : state === "hovered" ? colors.neutral[100] : "transparent";
+    return { bg, border: "transparent", text: "primary" };
   }
-  return base;
+  if (variant === "danger") {
+    const bg = state === "pressed" ? colors.danger.pressed : state === "hovered" ? colors.danger.hover : colors.danger.fg;
+    return { bg, border: bg, text: "onBrand" };
+  }
+  const scrim =
+    state === "pressed" ? "rgba(17, 21, 43, 0.24)" : state === "hovered" ? "rgba(17, 21, 43, 0.1)" : undefined;
+  return { bg: "transparent", border: "transparent", text: "onBrand", scrim };
 }
 
 export function Button({
@@ -77,6 +75,7 @@ export function Button({
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const isDisabled = Boolean(disabled) || loading;
+  const isGradient = variant === "primary" && !isDisabled;
   const { paddingVertical, paddingHorizontal, fontVariant } = sizeStyles[size];
 
   return (
@@ -106,33 +105,49 @@ export function Button({
         onBlur?.(e);
       }}
       style={({ pressed }) => {
-        const state = isDisabled ? "disabled" : pressed ? "pressed" : hovered ? "hovered" : "default";
-        const c = variantColors(variant, state);
+        const state: ButtonState = isDisabled ? "disabled" : pressed ? "pressed" : hovered ? "hovered" : "default";
+        const tone = toneFor(variant, state);
         return [
           styles.base,
           {
-            backgroundColor: c.bg,
-            borderColor: c.border,
-            paddingVertical,
-            paddingHorizontal,
+            borderColor: tone.border,
+            backgroundColor: isGradient ? "transparent" : tone.bg,
             minHeight: controlHeight[size],
             width: fullWidth ? "100%" : undefined,
             alignSelf,
-            opacity: isDisabled && variant === "ghost" ? 0.5 : 1,
           },
-          focused && !isDisabled ? styles.focusRing : null,
+          // The focus ring lives on this outer Pressable (not the inner
+          // gradient-clipping wrapper below) so a native shadow-based ring
+          // is never clipped by that wrapper's overflow:hidden.
+          focused && !isDisabled ? focusRingStyle : null,
         ];
       }}
     >
-      {loading ? (
-        <ActivityIndicator size="small" color={variant === "secondary" || variant === "ghost" ? colors.brand[500] : colors.textOnBrand} />
-      ) : (
-        <View style={styles.content}>
-          <Text variant={fontVariant} color={isDisabled ? "muted" : variant === "secondary" || variant === "ghost" ? "primary" : "onBrand"}>
-            {label}
-          </Text>
-        </View>
-      )}
+      {({ pressed }) => {
+        const state: ButtonState = isDisabled ? "disabled" : pressed ? "pressed" : hovered ? "hovered" : "default";
+        const tone = toneFor(variant, state);
+        return (
+          <View
+            style={[
+              styles.content,
+              { paddingVertical, paddingHorizontal, borderRadius: radii.md },
+              isGradient ? styles.gradientClip : null,
+            ]}
+          >
+            {isGradient ? <GradientView style={StyleSheet.absoluteFillObject} /> : null}
+            {isGradient && tone.scrim ? (
+              <View style={[StyleSheet.absoluteFillObject, { backgroundColor: tone.scrim }]} />
+            ) : null}
+            {loading ? (
+              <ActivityIndicator size="small" color={tone.text === "onBrand" ? colors.textOnBrand : colors.brand.violet} />
+            ) : (
+              <Text variant={fontVariant} color={tone.text}>
+                {label}
+              </Text>
+            )}
+          </View>
+        );
+      }}
     </Pressable>
   );
 }
@@ -143,20 +158,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    flexDirection: "row",
   },
   content: {
-    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
   },
-  focusRing: Platform.select({
-    web: { outlineWidth: 2, outlineColor: colors.focusRing, outlineStyle: "solid", outlineOffset: 2 },
-    default: {
-      shadowColor: colors.focusRing,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 1,
-      shadowRadius: 4,
-      elevation: 4,
-    },
-  }),
+  gradientClip: {
+    overflow: "hidden",
+  },
 });

@@ -1,6 +1,6 @@
-# Odyssey Dashboard
+# ServiceLine — Restaurant Operations
 
-A restaurant-ops admin dashboard: menu management, order tracking with an
+A restaurant-operations dashboard: menu management, order tracking with an
 enforced status workflow, a lightweight CRM, ordering settings, and a live
 KPI overview. Built as a fullstack take-home with generated contracts as the
 single source of truth end-to-end:
@@ -12,6 +12,12 @@ Drizzle schema -> drizzle-zod -> Hono/OpenAPI -> Orval -> generated frontend typ
 Nothing on the frontend hand-authors a type or a fetch call — every request
 hook, response type, and request body type in `apps/dashboard` is generated
 from the backend's live OpenAPI spec.
+
+> The product is branded **ServiceLine**; the internal package namespace
+> (`@odyssey/*`), the Cloudflare Worker name (`odyssey-backend`), and the
+> Expo `slug`/`scheme` (`odyssey-dashboard`) intentionally kept their
+> original names — renaming those is a real (and risky) technical change,
+> not a branding one, so it was left out of this pass.
 
 ## Stack
 

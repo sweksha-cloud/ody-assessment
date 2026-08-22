@@ -1,9 +1,10 @@
 import { forwardRef, useState } from "react";
-import { Platform, Pressable, type PressableProps, StyleSheet, type View } from "react-native";
-import { colors } from "../tokens/colors";
+import { Pressable, type PressableProps, StyleSheet, type View } from "react-native";
+import { focusRingStyle } from "../tokens/focusRing";
 import { controlHeight } from "../tokens/layout";
 import { radii } from "../tokens/radii";
 import { spacing } from "../tokens/spacing";
+import { GradientView } from "./GradientView";
 import { Text } from "./Text";
 
 export type NavLinkProps = Omit<PressableProps, "children" | "style"> & {
@@ -11,13 +12,12 @@ export type NavLinkProps = Omit<PressableProps, "children" | "style"> & {
   active?: boolean;
 };
 
-const INDICATOR_HEIGHT = 2;
-
-// Routing-agnostic nav link primitive — hover/focus/press/active states
-// live here so every nav bar gets them for free. Navigation itself (an
-// expo-router `Link asChild`, a react-router `NavLink`, ...) is the
-// caller's concern: this forwards whatever props that wrapper injects
-// (onPress, href, target, ...) straight to the underlying Pressable.
+// Routing-agnostic nav link primitive for the dark midnight command bar —
+// hover/focus/press/active states live here so every nav bar gets them
+// for free. Navigation itself (an expo-router `Link asChild`, a
+// react-router `NavLink`, ...) is the caller's concern: this forwards
+// whatever props that wrapper injects (onPress, href, target, ...)
+// straight to the underlying Pressable.
 // forwardRef is required, not optional polish: expo-router's `Link asChild`
 // clones this element and attaches a ref to it for its own layout/focus
 // handling — without forwarding, that ref silently fails.
@@ -37,14 +37,11 @@ export const NavLink = forwardRef<View, NavLinkProps>(function NavLink(
   return (
     <Pressable
       ref={ref}
-      // `rest` spreads first, `style`/accessibility props last: expo-router's
-      // `Link asChild` (via Radix's Slot) clones this element and injects
-      // its own `style`/`onClick`/href-related props at runtime — TS's
-      // `Omit<PressableProps, "style">` only hides `style` from the type,
-      // it doesn't stop Slot injecting one anyway. Spread order decides
-      // the winner in JSX, so ours must come after or the injected style
-      // silently replaces this component's entire visual contract (this
-      // is exactly how the active-page border-bar first shipped invisible).
+      // `rest` spreads first, our own props last — expo-router's `Link
+      // asChild` (via Radix's Slot) clones this element and injects its
+      // own `style` prop at runtime; TS hiding `style` from the prop type
+      // doesn't stop that injection, and JSX prop order decides the
+      // winner. See Button.tsx for the identical defensive ordering.
       {...rest}
       accessibilityRole="link"
       {...currentPageProp}
@@ -67,18 +64,24 @@ export const NavLink = forwardRef<View, NavLinkProps>(function NavLink(
       style={({ pressed }) => [
         styles.base,
         {
-          // Background tint for hover/press, matching Button's treatment —
-          // plain opacity dimming (the old approach) reads as "disabled,"
-          // not "hovered."
-          backgroundColor: pressed ? colors.neutral[200] : hovered ? colors.neutral[100] : "transparent",
-          borderBottomColor: active ? colors.brand[500] : "transparent",
+          // Translucent-white overlay for hover/press on the dark nav
+          // surface — a flat light-surface tint would be invisible here.
+          backgroundColor: pressed
+            ? "rgba(248, 250, 255, 0.14)"
+            : hovered
+              ? "rgba(248, 250, 255, 0.07)"
+              : "transparent",
         },
-        focused ? styles.focusRing : null,
+        focused ? focusRingStyle : null,
       ]}
     >
-      <Text variant="bodyMedium" color={active ? "primary" : "secondary"}>
+      <Text variant="bodyMedium" color={active ? "inverse" : "inverseMuted"}>
         {label}
       </Text>
+      {/* The active indicator is a small gradient bar, not just a color
+          change on the label — "more than color alone." Absolutely
+          positioned so it never affects the row's height. */}
+      {active ? <GradientView style={styles.activeIndicator} /> : null}
     </Pressable>
   );
 });
@@ -86,23 +89,17 @@ export const NavLink = forwardRef<View, NavLinkProps>(function NavLink(
 const styles = StyleSheet.create({
   base: {
     borderRadius: radii.sm,
-    // A bottom border-bar is the active-page indicator (set per-state
-    // above); reserved here at full width so the row's height never
-    // shifts between an inactive and an active item.
-    borderBottomWidth: INDICATOR_HEIGHT,
     paddingVertical: spacing[2],
     paddingHorizontal: spacing[3],
     minHeight: controlHeight.sm,
     justifyContent: "center",
   },
-  focusRing: Platform.select({
-    web: { outlineWidth: 2, outlineColor: colors.focusRing, outlineStyle: "solid", outlineOffset: 2 },
-    default: {
-      shadowColor: colors.focusRing,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 1,
-      shadowRadius: 4,
-      elevation: 4,
-    },
-  }),
+  activeIndicator: {
+    position: "absolute",
+    left: spacing[3],
+    right: spacing[3],
+    bottom: 0,
+    height: 2,
+    borderRadius: 1,
+  },
 });

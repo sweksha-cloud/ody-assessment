@@ -165,7 +165,9 @@ export default function CrmScreen() {
               }
               right={
                 <>
-                  <Text variant="bodyMedium">{formatCents(customer.totalSpentCents)}</Text>
+                  <Text variant="bodyMedium" style={{ fontVariant: ["tabular-nums"] }}>
+                    {formatCents(customer.totalSpentCents)}
+                  </Text>
                   <Text variant="caption" color="muted">
                     {customer.orderCount} order{customer.orderCount === 1 ? "" : "s"}
                   </Text>
@@ -219,7 +221,9 @@ export default function CrmScreen() {
             {detailQuery.data?.data.orders.map((order) => (
               <View key={order.id} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                 <View style={{ gap: spacing[1] }}>
-                  <Text variant="body">{formatCents(order.totalCents)}</Text>
+                  <Text variant="body" style={{ fontVariant: ["tabular-nums"] }}>
+                    {formatCents(order.totalCents)}
+                  </Text>
                   <Text variant="caption" color="muted">
                     {formatDateTime(order.createdAt)}
                   </Text>

@@ -24,9 +24,15 @@ function shadow(offsetY: number, blur: number, opacity: number, elevation: numbe
   });
 }
 
+// Five elevation tiers: flat sections use "none" (border/background
+// separation only, per the surface-and-depth system); standard cards use
+// "sm"; interactive cards lift from "sm" to "md" on hover; elevated
+// panels (modals, drawers) use "lg" or "xl". All tinted from neutral[900]
+// (#191E3A, a cool navy) rather than black or brown.
 export const shadows = {
   none: {},
   sm: shadow(1, 4, 0.08, 1),
   md: shadow(4, 16, 0.12, 3),
   lg: shadow(8, 40, 0.16, 8),
+  xl: shadow(16, 56, 0.2, 12),
 } as const;

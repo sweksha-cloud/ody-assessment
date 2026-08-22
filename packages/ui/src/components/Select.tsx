@@ -48,7 +48,8 @@ export function Select<T extends string>({ label, value, options, onChange, disa
         style={[
           styles.trigger,
           {
-            backgroundColor: disabled ? colors.neutral[100] : hovered ? colors.neutral[50] : colors.surface,
+            backgroundColor: disabled ? colors.disabled.bg : hovered ? colors.neutral[50] : colors.surface,
+            borderColor: disabled ? colors.disabled.border : colors.borderStrong,
             opacity: disabled ? 0.6 : 1,
           },
           focused && !disabled ? styles.focusRing : null,
@@ -100,12 +101,12 @@ function SelectOptionRow({ label, selected, onPress }: { label: string; selected
           borderRadius: radii.md,
           minHeight: controlHeight.md,
           justifyContent: "center",
-          backgroundColor: selected ? colors.brand[100] : pressed || hovered ? colors.neutral[100] : "transparent",
+          backgroundColor: selected ? colors.brand.paleViolet : pressed || hovered ? colors.neutral[100] : "transparent",
         },
         focused ? styles.focusRing : null,
       ]}
     >
-      <Text variant="bodyMedium" color={selected ? "primary" : "secondary"}>
+      <Text variant="bodyMedium" color={selected ? "brand" : "secondary"}>
         {label}
       </Text>
     </Pressable>
@@ -125,9 +126,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
   },
   focusRing: Platform.select({
-    web: { outlineWidth: 2, outlineColor: colors.focusRing, outlineStyle: "solid", outlineOffset: 2 },
+    web: {
+      outlineWidth: 2,
+      outlineColor: colors.focusRing,
+      outlineStyle: "solid",
+      outlineOffset: 2,
+      boxShadow: `0 0 0 3px ${colors.focusGlow}`,
+    },
     default: {
-      shadowColor: colors.focusRing,
+      shadowColor: colors.focus.ring,
       shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 1,
       shadowRadius: 4,

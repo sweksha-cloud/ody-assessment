@@ -6,7 +6,7 @@ import { Text } from "./Text";
 export function Spinner({ label }: { label?: string }) {
   return (
     <View style={{ alignItems: "center", justifyContent: "center", gap: spacing[3], padding: spacing[7] }}>
-      <ActivityIndicator size="large" color={colors.brand[500]} />
+      <ActivityIndicator size="large" color={colors.brand.violet} />
       {label ? (
         <Text variant="body" color="secondary">
           {label}

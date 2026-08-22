@@ -1,5 +1,5 @@
 import type { OrderStatus } from "@odyssey/types";
-import { statusColors } from "../tokens/colors";
+import { colors, statusColors } from "../tokens/colors";
 import { Badge } from "./Badge";
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -13,5 +13,12 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
 
 export function StatusBadge({ status }: { status: OrderStatus }) {
   const { bg, fg, border } = statusColors[status];
-  return <Badge label={STATUS_LABELS[status]} bg={bg} fg={fg} border={border} />;
+  return <Badge label={STATUS_LABELS[status]} bg={bg} fg={fg} border={border} dot />;
+}
+
+// A standalone cyan "operational" indicator — for real-time state (an
+// order actively in the kitchen, a live-updating list), not one of the
+// six OrderStatus values statusColors maps.
+export function LiveIndicator({ label = "Live" }: { label?: string }) {
+  return <Badge label={label} bg={colors.live.bg} fg={colors.live.fg} border={colors.live.border} dot />;
 }

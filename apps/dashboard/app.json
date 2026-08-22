@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "odyssey-dashboard",
+    "name": "ServiceLine",
+    "description": "ServiceLine — Restaurant Operations: manage live orders, menus, customers, business settings, and daily performance.",
     "slug": "odyssey-dashboard",
     "scheme": "odyssey-dashboard",
     "version": "0.1.0",
@@ -10,7 +11,9 @@
     "plugins": ["expo-router"],
     "web": {
       "bundler": "metro",
-      "output": "static"
+      "output": "static",
+      "themeColor": "#11152B",
+      "backgroundColor": "#F3F5FA"
     },
     "ios": {
       "supportsTablet": true

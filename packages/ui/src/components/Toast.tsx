@@ -21,10 +21,10 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 const VARIANT_COLORS: Record<ToastVariant, { bg: string; fg: string }> = {
-  info: { bg: colors.info[700], fg: colors.textOnBrand },
-  success: { bg: colors.success[700], fg: colors.textOnBrand },
-  warning: { bg: colors.warning[700], fg: colors.textOnBrand },
-  danger: { bg: colors.danger[700], fg: colors.textOnBrand },
+  info: { bg: colors.info.fg, fg: colors.textOnBrand },
+  success: { bg: colors.success.fg, fg: colors.textOnBrand },
+  warning: { bg: colors.warning.fg, fg: colors.textOnBrand },
+  danger: { bg: colors.danger.fg, fg: colors.textOnBrand },
 };
 
 const AUTO_DISMISS_MS = 3000;

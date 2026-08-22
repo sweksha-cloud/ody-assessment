@@ -251,7 +251,9 @@ export default function MenuScreen() {
                       }
                       right={
                         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
-                          <Text variant="bodyMedium">{formatCents(item.priceCents)}</Text>
+                          <Text variant="bodyMedium" style={{ fontVariant: ["tabular-nums"] }}>
+                            {formatCents(item.priceCents)}
+                          </Text>
                           <Switch value={item.isAvailable} onValueChange={() => toggleAvailability(item)} />
                         </View>
                       }

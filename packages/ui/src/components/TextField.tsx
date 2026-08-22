@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { TextInput, type TextInputProps, View } from "react-native";
+import { Platform, TextInput, type TextInputProps, View } from "react-native";
 import { colors } from "../tokens/colors";
 import { controlHeight } from "../tokens/layout";
 import { radii } from "../tokens/radii";
 import { spacing } from "../tokens/spacing";
+import { typography } from "../tokens/typography";
 import { Text } from "./Text";
 
 export type TextFieldProps = Omit<TextInputProps, "style"> & {
@@ -11,6 +12,20 @@ export type TextFieldProps = Omit<TextInputProps, "style"> & {
   error?: string;
   helperText?: string;
 };
+
+// Outer glow for the focused state — additive to the ring border, never
+// a layout-shifting border-width change, so an error/helper message
+// appearing or disappearing (and focus itself) never reflows the form.
+const focusGlow = Platform.select({
+  web: { boxShadow: `0 0 0 3px ${colors.focusGlow}` },
+  default: {
+    shadowColor: colors.focus.ring,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+});
 
 export function TextField({ label, error, helperText, editable = true, onFocus, onBlur, ...rest }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
@@ -20,9 +35,9 @@ export function TextField({ label, error, helperText, editable = true, onFocus, 
   const borderColor = disabled
     ? colors.border
     : hasError
-      ? colors.danger[500]
+      ? colors.danger.fg
       : focused
-        ? colors.brand[500]
+        ? colors.focus.ring
         : colors.borderStrong;
 
   return (
@@ -43,28 +58,36 @@ export function TextField({ label, error, helperText, editable = true, onFocus, 
           setFocused(false);
           onBlur?.(e);
         }}
-        style={{
-          borderWidth: focused && !hasError ? 2 : 1,
-          borderColor,
-          borderRadius: radii.md,
-          minHeight: controlHeight.md,
-          paddingVertical: spacing[3],
-          paddingHorizontal: spacing[4],
-          fontSize: 14,
-          color: disabled ? colors.textMuted : colors.textPrimary,
-          backgroundColor: disabled ? colors.neutral[100] : colors.surface,
-        }}
+        style={[
+          {
+            borderWidth: 1,
+            borderColor,
+            borderRadius: radii.md,
+            minHeight: controlHeight.md,
+            paddingVertical: spacing[3],
+            paddingHorizontal: spacing[4],
+            fontSize: 14,
+            color: disabled ? colors.textMuted : colors.textPrimary,
+            backgroundColor: disabled ? colors.disabled.bg : colors.surface,
+          },
+          focused && !hasError ? focusGlow : null,
+        ]}
         {...rest}
       />
-      {error ? (
-        <Text variant="caption" style={{ color: colors.danger[500] }}>
-          {error}
-        </Text>
-      ) : helperText ? (
-        <Text variant="caption" color="muted">
-          {helperText}
-        </Text>
-      ) : null}
+      {/* Reserves the message line's height whether or not a message is
+          shown, so an error appearing/disappearing never shifts the
+          controls below it. */}
+      <View style={{ minHeight: typography.caption.lineHeight }}>
+        {error ? (
+          <Text variant="caption" style={{ color: colors.danger.fg }}>
+            {error}
+          </Text>
+        ) : helperText ? (
+          <Text variant="caption" color="muted">
+            {helperText}
+          </Text>
+        ) : null}
+      </View>
     </View>
   );
 }

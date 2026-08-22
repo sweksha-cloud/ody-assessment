@@ -1,30 +1,39 @@
 import { useGetKpis } from "@odyssey/api-client";
 import { formatCents } from "@odyssey/shared";
-import { Card, ErrorState, PageContainer, PageHeader, Skeleton, spacing, Text } from "@odyssey/ui";
+import { Card, ErrorState, IconContainer, type IconContainerTint, PageContainer, PageHeader, RankedBar, Skeleton, spacing, Text } from "@odyssey/ui";
 import { View } from "react-native";
 
 function StatTileSkeleton() {
   return (
-    <Card style={{ flexGrow: 1, flexBasis: 220, gap: spacing[3] }}>
-      <Skeleton width="60%" height={12} />
-      <Skeleton width="40%" height={28} />
+    <Card style={{ flexGrow: 1, flexBasis: 220, gap: spacing[4] }}>
+      <Skeleton width={40} height={40} radius="md" />
+      <View style={{ gap: spacing[2] }}>
+        <Skeleton width="60%" height={12} />
+        <Skeleton width="40%" height={28} />
+      </View>
     </Card>
   );
 }
 
-function StatTile({ label, value }: { label: string; value: string }) {
+function StatTile({ label, value, glyph, tint }: { label: string; value: string; glyph: string; tint: IconContainerTint }) {
   return (
-    <Card style={{ flexGrow: 1, flexBasis: 220, gap: spacing[2] }}>
-      <Text variant="label" color="secondary">
-        {label.toUpperCase()}
-      </Text>
-      <Text variant="display">{value}</Text>
+    <Card style={{ flexGrow: 1, flexBasis: 220, gap: spacing[4] }}>
+      <IconContainer tint={tint}>{(fg) => <Text style={{ color: fg, fontSize: 16, fontWeight: "700" }}>{glyph}</Text>}</IconContainer>
+      <View style={{ gap: spacing[2] }}>
+        <Text variant="label" color="secondary">
+          {label.toUpperCase()}
+        </Text>
+        <Text variant="display" style={{ fontVariant: ["tabular-nums"] }}>
+          {value}
+        </Text>
+      </View>
     </Card>
   );
 }
 
 export default function HomeScreen() {
   const { data, isLoading, isError, refetch } = useGetKpis();
+  const maxQuantitySold = Math.max(1, ...(data?.data.popularItems.map((item) => item.quantitySold) ?? [1]));
 
   return (
     <PageContainer>
@@ -61,9 +70,9 @@ export default function HomeScreen() {
       {data && (
         <>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing[5] }}>
-            <StatTile label="Orders today" value={String(data.data.totalOrdersToday)} />
-            <StatTile label="Revenue today" value={formatCents(data.data.revenueCentsToday)} />
-            <StatTile label="Pending orders" value={String(data.data.pendingOrders)} />
+            <StatTile label="Orders today" value={String(data.data.totalOrdersToday)} glyph="#" tint="brand" />
+            <StatTile label="Revenue today" value={formatCents(data.data.revenueCentsToday)} glyph="$" tint="success" />
+            <StatTile label="Pending orders" value={String(data.data.pendingOrders)} glyph="!" tint="warning" />
           </View>
 
           <Card style={{ gap: spacing[5] }}>
@@ -74,18 +83,14 @@ export default function HomeScreen() {
               </Text>
             ) : (
               <View style={{ gap: spacing[4] }}>
-                {data.data.popularItems.map((item, i) => (
-                  <View
+                {data.data.popularItems.map((item) => (
+                  <RankedBar
                     key={item.menuItemId}
-                    style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
-                  >
-                    <Text variant="body">
-                      {i + 1}. {item.name}
-                    </Text>
-                    <Text variant="bodyMedium" color="secondary">
-                      {item.quantitySold} sold
-                    </Text>
-                  </View>
+                    label={item.name}
+                    value={item.quantitySold}
+                    maxValue={maxQuantitySold}
+                    valueLabel={`${item.quantitySold} sold`}
+                  />
                 ))}
               </View>
             )}

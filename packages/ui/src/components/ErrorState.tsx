@@ -13,7 +13,7 @@ export type ErrorStateProps = {
 export function ErrorState({ title = "Something went wrong", description, onRetry }: ErrorStateProps) {
   return (
     <View style={{ alignItems: "center", justifyContent: "center", gap: spacing[3], padding: spacing[8] }}>
-      <Text variant="h3" style={{ color: colors.danger[500] }}>
+      <Text variant="h3" style={{ color: colors.danger.fg }}>
         {title}
       </Text>
       {description ? (
