@@ -13,14 +13,14 @@ import { formatCents } from "@odyssey/shared";
 import {
   Button,
   Card,
-  colors,
   Divider,
   EmptyState,
   ErrorState,
-  layout,
   List,
   ListRow,
   Modal,
+  PageContainer,
+  PageHeader,
   Select,
   Skeleton,
   spacing,
@@ -31,7 +31,7 @@ import {
 } from "@odyssey/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 
 function dollarsToCents(value: string): number | null {
   const parsed = Number.parseFloat(value);
@@ -187,25 +187,13 @@ export default function MenuScreen() {
   const items = itemsQuery.data?.data ?? [];
 
   return (
-    <ScrollView contentContainerStyle={{ backgroundColor: colors.background }}>
-      <View
-        style={{
-          maxWidth: layout.maxContentWidth,
-          width: "100%",
-          alignSelf: "center",
-          padding: layout.containerPadding,
-          gap: spacing[7],
-        }}
-      >
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}>
-          <View style={{ gap: spacing[2] }}>
-            <Text variant="display">Menu</Text>
-            <Text variant="body" color="secondary">
-              Toggle availability instantly — items are never deleted, only marked unavailable.
-            </Text>
-          </View>
-          <Button label="New category" variant="secondary" onPress={openCreateCategory} />
-        </View>
+    <>
+      <PageContainer>
+        <PageHeader
+          title="Menu"
+          description="Toggle availability instantly — items are never deleted, only marked unavailable."
+          action={<Button label="New category" variant="secondary" onPress={openCreateCategory} />}
+        />
 
         {isLoading && (
           <View style={{ gap: spacing[5] }}>
@@ -274,7 +262,7 @@ export default function MenuScreen() {
             </Card>
           );
         })}
-      </View>
+      </PageContainer>
 
       <Modal
         visible={categoryModal.open}
@@ -316,6 +304,6 @@ export default function MenuScreen() {
           <Button label="Save" loading={createItem.isPending || updateItem.isPending} onPress={submitItem} />
         </View>
       </Modal>
-    </ScrollView>
+    </>
   );
 }

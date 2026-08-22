@@ -55,13 +55,27 @@ export const info = {
 } as const;
 
 // One entry per OrderStatus value — the only place status -> color is decided.
+// "pending" gets a stronger neutral than the semantic scale below (bg/fg/border
+// one step darker than a plain "100/700/300" reading) so it doesn't read as a
+// washed-out, indeterminate pill next to the saturated statuses around it.
 export const statusColors = {
-  pending: { bg: neutral[100], fg: neutral[700], border: neutral[300] },
+  pending: { bg: neutral[200], fg: neutral[800], border: neutral[400] },
   confirmed: { bg: info[100], fg: info[700], border: info[500] },
   preparing: { bg: warning[100], fg: warning[700], border: warning[500] },
   ready: { bg: brand[100], fg: brand[700], border: brand[500] },
   completed: { bg: success[100], fg: success[700], border: success[500] },
   cancelled: { bg: danger[100], fg: danger[700], border: danger[500] },
+} as const;
+
+// Standardized bg/fg/border triples for the four semantic meanings — the
+// single place a "success banner" or "danger inline message" picks its
+// three colors from, instead of each call site reaching into success[700]
+// vs success[500] ad hoc. Same 100/700/500 shape as statusColors above.
+export const semantic = {
+  success: { bg: success[100], fg: success[700], border: success[500] },
+  warning: { bg: warning[100], fg: warning[700], border: warning[500] },
+  danger: { bg: danger[100], fg: danger[700], border: danger[500] },
+  info: { bg: info[100], fg: info[700], border: info[500] },
 } as const;
 
 export const colors = {
@@ -72,16 +86,27 @@ export const colors = {
   danger,
   info,
   status: statusColors,
+  semantic,
 
-  background: neutral[50],
+  // background sits one step below surface (was nearly indistinguishable
+  // at neutral[50], ~1.03:1) so cards visibly separate from the page.
+  background: neutral[100],
   surface: neutral[0],
-  border: neutral[200],
-  borderStrong: neutral[300],
+  // border (decorative hairlines/card edges, reinforced by shadow) vs.
+  // borderStrong (the sole boundary cue on interactive controls like
+  // TextField/Select, held to WCAG 1.4.11's ~3:1 non-text contrast target).
+  border: neutral[300],
+  borderStrong: neutral[500],
 
   textPrimary: neutral[900],
   textSecondary: neutral[600],
-  textMuted: neutral[400],
+  // was neutral[400] (2.79:1 vs white — fails WCAG AA); neutral[500] clears
+  // the 4.5:1 normal-text minimum.
+  textMuted: neutral[500],
   textOnBrand: neutral[0],
 
-  focusRing: brand[400],
+  // was brand[400] (2.60:1 vs white — under the 3:1 non-text minimum for
+  // focus indicators); brand[500] clears it against both white and the
+  // new background tone.
+  focusRing: brand[500],
 } as const;

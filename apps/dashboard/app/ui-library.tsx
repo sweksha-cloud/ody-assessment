@@ -6,12 +6,13 @@ import {
   Divider,
   EmptyState,
   ErrorState,
-  layout,
   List,
   ListRow,
   Modal,
   NavLink,
   neutral,
+  PageContainer,
+  PageHeader,
   Select,
   Skeleton,
   spacing,
@@ -26,7 +27,7 @@ import {
 } from "@odyssey/ui";
 import { ORDER_STATUSES } from "@odyssey/shared";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -57,6 +58,28 @@ function Swatch({ label, color }: { label: string; color: string }) {
   );
 }
 
+// The standardized bg/fg/border triple each semantic meaning resolves to
+// (colors.semantic.<name>) — shown as a filled chip, not just a swatch,
+// since fg-on-bg contrast is the thing worth actually seeing.
+function SemanticChip({ label, tone }: { label: string; tone: { bg: string; fg: string; border: string } }) {
+  return (
+    <View
+      style={{
+        backgroundColor: tone.bg,
+        borderColor: tone.border,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingVertical: spacing[3],
+        paddingHorizontal: spacing[4],
+      }}
+    >
+      <Text variant="bodyMedium" style={{ color: tone.fg }}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 export default function UiLibraryScreen() {
   const { showToast } = useToast();
 
@@ -68,25 +91,13 @@ export default function UiLibraryScreen() {
   const [activeNavDemo, setActiveNavDemo] = useState("Home");
 
   return (
-    <ScrollView contentContainerStyle={{ backgroundColor: colors.background }}>
-      <View
-        style={{
-          maxWidth: layout.maxContentWidth,
-          width: "100%",
-          alignSelf: "center",
-          padding: layout.containerPadding,
-          gap: spacing[9],
-        }}
-      >
-        <View style={{ gap: spacing[2] }}>
-          <Text variant="display">UI Library</Text>
-          <Text variant="body" color="secondary">
-            Design tokens and primitives that back every screen in the dashboard — every state below is live and
-            interactive, not a static mock.
-          </Text>
-        </View>
+    <PageContainer gap={9}>
+      <PageHeader
+        title="UI Library"
+        description="Design tokens and primitives that back every screen in the dashboard — every state below is live and interactive, not a static mock."
+      />
 
-        <Section title="Color">
+      <Section title="Color">
           <View style={{ gap: spacing[2] }}>
             <Text variant="label" color="secondary">
               BRAND
@@ -109,13 +120,14 @@ export default function UiLibraryScreen() {
           </View>
           <View style={{ gap: spacing[2] }}>
             <Text variant="label" color="secondary">
-              SEMANTIC
+              SEMANTIC — colors.semantic.&lt;name&gt;, the standardized bg/fg/border triple every success/warning/danger/info
+              surface (Toast, ErrorState, inline messages) pulls from
             </Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing[3] }}>
-              <Swatch label="success" color={colors.success[500]} />
-              <Swatch label="warning" color={colors.warning[500]} />
-              <Swatch label="danger" color={colors.danger[500]} />
-              <Swatch label="info" color={colors.info[500]} />
+              <SemanticChip label="Success" tone={colors.semantic.success} />
+              <SemanticChip label="Warning" tone={colors.semantic.warning} />
+              <SemanticChip label="Danger" tone={colors.semantic.danger} />
+              <SemanticChip label="Info" tone={colors.semantic.info} />
             </View>
           </View>
         </Section>
@@ -285,12 +297,16 @@ export default function UiLibraryScreen() {
             options={ORDER_STATUSES.map((status) => ({ value: status, label: status }))}
           />
 
-          <Switch
-            label="Ordering enabled"
-            description="Toggles whether customers can place new orders"
-            value={switchValue}
-            onValueChange={setSwitchValue}
-          />
+          <View style={{ gap: spacing[3] }}>
+            <Switch
+              label="Ordering enabled (interactive)"
+              description="Toggles whether customers can place new orders"
+              value={switchValue}
+              onValueChange={setSwitchValue}
+            />
+            <Switch label="Fixed on state" value={true} onValueChange={() => {}} />
+            <Switch label="Fixed off state" value={false} onValueChange={() => {}} />
+          </View>
         </Section>
 
         <Divider />
@@ -369,7 +385,6 @@ export default function UiLibraryScreen() {
             />
           </Card>
         </Section>
-      </View>
-    </ScrollView>
+    </PageContainer>
   );
 }

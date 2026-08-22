@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TextInput, type TextInputProps, View } from "react-native";
 import { colors } from "../tokens/colors";
+import { controlHeight } from "../tokens/layout";
 import { radii } from "../tokens/radii";
 import { spacing } from "../tokens/spacing";
 import { Text } from "./Text";
@@ -46,6 +47,7 @@ export function TextField({ label, error, helperText, editable = true, onFocus, 
           borderWidth: focused && !hasError ? 2 : 1,
           borderColor,
           borderRadius: radii.md,
+          minHeight: controlHeight.md,
           paddingVertical: spacing[3],
           paddingHorizontal: spacing[4],
           fontSize: 14,

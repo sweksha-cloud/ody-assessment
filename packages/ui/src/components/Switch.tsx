@@ -11,6 +11,13 @@ export type SwitchProps = {
   disabled?: boolean;
 };
 
+// react-native-web's Switch supports a web-only activeThumbColor for the
+// ON-state thumb (defaulting to a hardcoded teal, #009688, when unset —
+// thumbColor alone only covers OFF), but RN's bundled types don't declare
+// it, hence the typed prop bag instead of an inline JSX attribute (which
+// would fail typecheck against SwitchProps).
+const activeThumbColorProp: Record<string, unknown> = { activeThumbColor: colors.surface };
+
 export function Switch({ label, description, value, onValueChange, disabled }: SwitchProps) {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing[4] }}>
@@ -28,9 +35,10 @@ export function Switch({ label, description, value, onValueChange, disabled }: S
         value={value}
         onValueChange={onValueChange}
         disabled={disabled}
-        trackColor={{ false: colors.neutral[300], true: colors.brand[400] }}
+        trackColor={{ false: colors.neutral[400], true: colors.brand[500] }}
         thumbColor={colors.surface}
-        ios_backgroundColor={colors.neutral[300]}
+        {...activeThumbColorProp}
+        ios_backgroundColor={colors.neutral[400]}
       />
     </View>
   );

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { View, type ViewStyle } from "react-native";
 import { colors } from "../tokens/colors";
+import { controlHeight } from "../tokens/layout";
 import { radii } from "../tokens/radii";
 import { shadows } from "../tokens/shadows";
 import { spacing } from "../tokens/spacing";
@@ -23,7 +24,13 @@ export function ListRow({ left, right, surface = true, style }: ListRowProps) {
   return (
     <View
       style={[
-        { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] },
+        {
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: spacing[4],
+          minHeight: controlHeight.lg,
+        },
         surface
           ? [
               {

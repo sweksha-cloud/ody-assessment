@@ -9,14 +9,14 @@ import { formatCents, formatDateTime } from "@odyssey/shared";
 import {
   Button,
   Card,
-  colors,
   Divider,
   EmptyState,
   ErrorState,
-  layout,
   List,
   ListRow,
   Modal,
+  PageContainer,
+  PageHeader,
   Skeleton,
   spacing,
   Spinner,
@@ -27,7 +27,7 @@ import {
 } from "@odyssey/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 
 type CustomerFormState = { name: string; email: string; phone: string };
 const EMPTY_FORM: CustomerFormState = { name: "", email: "", phone: "" };
@@ -112,25 +112,13 @@ export default function CrmScreen() {
   const customers = customersQuery.data?.data ?? [];
 
   return (
-    <ScrollView contentContainerStyle={{ backgroundColor: colors.background }}>
-      <View
-        style={{
-          maxWidth: layout.maxContentWidth,
-          width: "100%",
-          alignSelf: "center",
-          padding: layout.containerPadding,
-          gap: spacing[7],
-        }}
-      >
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}>
-          <View style={{ gap: spacing[2] }}>
-            <Text variant="display">Customers</Text>
-            <Text variant="body" color="secondary">
-              Spend and order counts are computed live, never stored on the customer.
-            </Text>
-          </View>
-          <Button label="New customer" variant="secondary" onPress={() => setCreateOpen(true)} />
-        </View>
+    <>
+      <PageContainer>
+        <PageHeader
+          title="Customers"
+          description="Spend and order counts are computed live, never stored on the customer."
+          action={<Button label="New customer" variant="secondary" onPress={() => setCreateOpen(true)} />}
+        />
 
         {customersQuery.isLoading && (
           <List>
@@ -186,7 +174,7 @@ export default function CrmScreen() {
             />
           ))}
         </List>
-      </View>
+      </PageContainer>
 
       <Modal visible={createOpen} onClose={() => setCreateOpen(false)} title="New customer">
         <View style={{ gap: spacing[5] }}>
@@ -242,6 +230,6 @@ export default function CrmScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </>
   );
 }

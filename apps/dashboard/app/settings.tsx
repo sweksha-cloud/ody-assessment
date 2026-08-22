@@ -1,8 +1,19 @@
 import { getGetSettingsQueryKey, useGetSettings, usePatchSettings } from "@odyssey/api-client";
-import { Button, Card, colors, ErrorState, layout, spacing, Spinner, Switch, Text, TextField, useToast } from "@odyssey/ui";
+import {
+  Button,
+  Card,
+  ErrorState,
+  layout,
+  PageContainer,
+  PageHeader,
+  spacing,
+  Spinner,
+  Switch,
+  TextField,
+  useToast,
+} from "@odyssey/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
 
 type FormState = {
   isOrderingEnabled: boolean;
@@ -58,78 +69,63 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ backgroundColor: colors.background }}>
-      <View
-        style={{
-          maxWidth: 640,
-          width: "100%",
-          alignSelf: "center",
-          padding: layout.containerPadding,
-          gap: spacing[7],
-        }}
-      >
-        <View style={{ gap: spacing[2] }}>
-          <Text variant="display">Settings</Text>
-          <Text variant="body" color="secondary">
-            Ordering settings apply immediately across the dashboard.
-          </Text>
-        </View>
+    <PageContainer maxWidth={layout.maxFormWidth}>
+      <PageHeader title="Settings" description="Ordering settings apply immediately across the dashboard." />
 
-        {isLoading && (
-          <Card>
-            <Spinner label="Loading settings…" />
-          </Card>
-        )}
+      {isLoading && (
+        <Card>
+          <Spinner label="Loading settings…" />
+        </Card>
+      )}
 
-        {isError && (
-          <Card>
-            <ErrorState title="Couldn't load settings" onRetry={() => refetch()} />
-          </Card>
-        )}
+      {isError && (
+        <Card>
+          <ErrorState title="Couldn't load settings" onRetry={() => refetch()} />
+        </Card>
+      )}
 
-        {form && (
-          <Card style={{ gap: spacing[6] }}>
-            <Switch
-              label="Ordering enabled"
-              description="Turn off to stop accepting new orders"
-              value={form.isOrderingEnabled}
-              onValueChange={(isOrderingEnabled) => setForm((f) => (f ? { ...f, isOrderingEnabled } : f))}
-            />
+      {form && (
+        <Card style={{ gap: spacing[6] }}>
+          <Switch
+            label="Ordering enabled"
+            description="Turn off to stop accepting new orders"
+            value={form.isOrderingEnabled}
+            onValueChange={(isOrderingEnabled) => setForm((f) => (f ? { ...f, isOrderingEnabled } : f))}
+          />
 
-            <TextField
-              label="Estimated prep time (minutes)"
-              value={form.estimatedPrepTimeMinutes}
-              onChangeText={(estimatedPrepTimeMinutes) => setForm((f) => (f ? { ...f, estimatedPrepTimeMinutes } : f))}
-              keyboardType="number-pad"
-              error={!prepTimeValid ? "Enter a whole number of minutes" : undefined}
-            />
+          <TextField
+            label="Estimated prep time (minutes)"
+            value={form.estimatedPrepTimeMinutes}
+            onChangeText={(estimatedPrepTimeMinutes) => setForm((f) => (f ? { ...f, estimatedPrepTimeMinutes } : f))}
+            keyboardType="number-pad"
+            error={!prepTimeValid ? "Enter a whole number of minutes" : undefined}
+          />
 
-            <TextField
-              label="Tax rate (%)"
-              value={form.taxRatePercent}
-              onChangeText={(taxRatePercent) => setForm((f) => (f ? { ...f, taxRatePercent } : f))}
-              keyboardType="decimal-pad"
-              error={!taxRateValid ? "Enter a valid percentage" : undefined}
-            />
+          <TextField
+            label="Tax rate (%)"
+            value={form.taxRatePercent}
+            onChangeText={(taxRatePercent) => setForm((f) => (f ? { ...f, taxRatePercent } : f))}
+            keyboardType="decimal-pad"
+            error={!taxRateValid ? "Enter a valid percentage" : undefined}
+          />
 
-            <TextField
-              label="Currency code"
-              value={form.currency}
-              onChangeText={(currency) => setForm((f) => (f ? { ...f, currency } : f))}
-              autoCapitalize="characters"
-              maxLength={3}
-              error={!currencyValid ? "Currency is required" : undefined}
-            />
+          <TextField
+            label="Currency code"
+            value={form.currency}
+            onChangeText={(currency) => setForm((f) => (f ? { ...f, currency } : f))}
+            autoCapitalize="characters"
+            maxLength={3}
+            error={!currencyValid ? "Currency is required" : undefined}
+          />
 
-            <Button
-              label="Save changes"
-              loading={saveSettings.isPending}
-              disabled={!prepTimeValid || !taxRateValid || !currencyValid}
-              onPress={submit}
-            />
-          </Card>
-        )}
-      </View>
-    </ScrollView>
+          <Button
+            label="Save changes"
+            loading={saveSettings.isPending}
+            disabled={!prepTimeValid || !taxRateValid || !currencyValid}
+            onPress={submit}
+          />
+        </Card>
+      )}
+    </PageContainer>
   );
 }

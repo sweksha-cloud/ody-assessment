@@ -14,7 +14,7 @@ export function NavBar() {
   const pathname = usePathname();
 
   return (
-    <TopNav brand={<Text variant="h3">🍊 Odyssey</Text>}>
+    <TopNav brand={<Text variant="h3">🍊 Odyssey</Text>} activeKey={pathname}>
       {NAV_ITEMS.map((item) => (
         <Link key={item.href} href={item.href} asChild>
           <NavLink label={item.label} active={pathname === item.href} />

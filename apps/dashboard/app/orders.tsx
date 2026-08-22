@@ -14,14 +14,14 @@ import { formatCents, formatDateTime, ORDER_STATUSES, type OrderStatus } from "@
 import {
   Button,
   Card,
-  colors,
   Divider,
   EmptyState,
   ErrorState,
-  layout,
   List,
   ListRow,
   Modal,
+  PageContainer,
+  PageHeader,
   Select,
   Skeleton,
   spacing,
@@ -34,7 +34,7 @@ import {
 } from "@odyssey/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { computeOrderPreviewTotals } from "../lib/orderPreview";
 
 type FilterValue = "all" | OrderStatus;
@@ -88,110 +88,96 @@ export default function OrdersScreen() {
   const orders = data?.data ?? [];
 
   return (
-    <ScrollView contentContainerStyle={{ backgroundColor: colors.background }}>
-      <View
-        style={{
-          maxWidth: layout.maxContentWidth,
-          width: "100%",
-          alignSelf: "center",
-          padding: layout.containerPadding,
-          gap: spacing[7],
-        }}
-      >
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}>
-          <View style={{ gap: spacing[2] }}>
-            <Text variant="display">Orders</Text>
-            <Text variant="body" color="secondary">
-              Advance an order's status as it moves through the kitchen.
-            </Text>
-          </View>
-          <NewOrderButton />
-        </View>
+    <PageContainer>
+      <PageHeader
+        title="Orders"
+        description="Advance an order's status as it moves through the kitchen."
+        action={<NewOrderButton />}
+      />
 
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing[3] }}>
-          {FILTERS.map((f) => (
-            <Button
-              key={f.value}
-              label={f.label}
-              size="sm"
-              variant={filter === f.value ? "primary" : "secondary"}
-              onPress={() => setFilter(f.value)}
-            />
-          ))}
-        </View>
-
-        {isLoading && (
-          <List gap={4}>
-            <OrderCardSkeleton />
-            <OrderCardSkeleton />
-            <OrderCardSkeleton />
-          </List>
-        )}
-
-        {isError && (
-          <Card>
-            <ErrorState title="Couldn't load orders" onRetry={() => refetch()} />
-          </Card>
-        )}
-
-        {!isLoading && !isError && orders.length === 0 && (
-          <Card>
-            <EmptyState title="No orders" description="Orders matching this filter will show up here." />
-          </Card>
-        )}
-
-        <List gap={4}>
-          {orders.map((order) => (
-            <Card key={order.id} style={{ gap: spacing[4] }}>
-              <ListRow
-                surface={false}
-                style={{ alignItems: "flex-start" }}
-                left={
-                  <>
-                    <Text variant="bodyMedium">{order.customer.name}</Text>
-                    <Text variant="caption" color="muted">
-                      {formatDateTime(order.createdAt)}
-                    </Text>
-                  </>
-                }
-                right={<StatusBadge status={order.status} />}
-              />
-
-              {order.notes ? (
-                <Text variant="body" color="secondary">
-                  {order.notes}
-                </Text>
-              ) : null}
-
-              <ListRow
-                surface={false}
-                left={<Text variant="h3">{formatCents(order.totalCents)}</Text>}
-                right={
-                  order.allowedTransitions.length > 0 ? (
-                    <View style={{ flexDirection: "row", gap: spacing[3] }}>
-                      {order.allowedTransitions.map((next) => (
-                        <Button
-                          key={next}
-                          label={STATUS_LABELS[next]}
-                          size="sm"
-                          variant={next === "cancelled" ? "danger" : "secondary"}
-                          loading={transitionMutation.isPending && transitionMutation.variables?.id === order.id}
-                          onPress={() => transitionMutation.mutate({ id: order.id, data: { status: next } })}
-                        />
-                      ))}
-                    </View>
-                  ) : (
-                    <Text variant="caption" color="muted">
-                      No further actions
-                    </Text>
-                  )
-                }
-              />
-            </Card>
-          ))}
-        </List>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing[3] }}>
+        {FILTERS.map((f) => (
+          <Button
+            key={f.value}
+            label={f.label}
+            size="sm"
+            variant={filter === f.value ? "primary" : "secondary"}
+            onPress={() => setFilter(f.value)}
+          />
+        ))}
       </View>
-    </ScrollView>
+
+      {isLoading && (
+        <List gap={4}>
+          <OrderCardSkeleton />
+          <OrderCardSkeleton />
+          <OrderCardSkeleton />
+        </List>
+      )}
+
+      {isError && (
+        <Card>
+          <ErrorState title="Couldn't load orders" onRetry={() => refetch()} />
+        </Card>
+      )}
+
+      {!isLoading && !isError && orders.length === 0 && (
+        <Card>
+          <EmptyState title="No orders" description="Orders matching this filter will show up here." />
+        </Card>
+      )}
+
+      <List gap={4}>
+        {orders.map((order) => (
+          <Card key={order.id} style={{ gap: spacing[4] }}>
+            <ListRow
+              surface={false}
+              style={{ alignItems: "flex-start" }}
+              left={
+                <>
+                  <Text variant="bodyMedium">{order.customer.name}</Text>
+                  <Text variant="caption" color="muted">
+                    {formatDateTime(order.createdAt)}
+                  </Text>
+                </>
+              }
+              right={<StatusBadge status={order.status} />}
+            />
+
+            {order.notes ? (
+              <Text variant="body" color="secondary">
+                {order.notes}
+              </Text>
+            ) : null}
+
+            <ListRow
+              surface={false}
+              left={<Text variant="h3">{formatCents(order.totalCents)}</Text>}
+              right={
+                order.allowedTransitions.length > 0 ? (
+                  <View style={{ flexDirection: "row", gap: spacing[3] }}>
+                    {order.allowedTransitions.map((next) => (
+                      <Button
+                        key={next}
+                        label={STATUS_LABELS[next]}
+                        size="sm"
+                        variant={next === "cancelled" ? "danger" : "secondary"}
+                        loading={transitionMutation.isPending && transitionMutation.variables?.id === order.id}
+                        onPress={() => transitionMutation.mutate({ id: order.id, data: { status: next } })}
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  <Text variant="caption" color="muted">
+                    No further actions
+                  </Text>
+                )
+              }
+            />
+          </Card>
+        ))}
+      </List>
+    </PageContainer>
   );
 }
 

@@ -9,6 +9,19 @@ export const breakpoints = {
 
 export const layout = {
   maxContentWidth: 1120,
+  // Narrower rail for single-column form pages (Settings) — a prop
+  // override on PageContainer, not a per-page magic number.
+  maxFormWidth: 640,
   containerPadding: 16,
   gutter: 16,
+} as const;
+
+// Shared heights for Button/TextField/Select so mixed rows (a button next
+// to a text field) line up, and so every tappable control clears a
+// reasonable touch target — sm intentionally stays below the 44px "ideal"
+// since it's used for dense in-row actions, not primary CTAs.
+export const controlHeight = {
+  sm: 36,
+  md: 40,
+  lg: 48,
 } as const;

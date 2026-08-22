@@ -8,6 +8,8 @@ export * from "./List";
 export * from "./ListRow";
 export * from "./Modal";
 export * from "./NavLink";
+export * from "./PageContainer";
+export * from "./PageHeader";
 export * from "./Select";
 export * from "./Skeleton";
 export * from "./Spinner";

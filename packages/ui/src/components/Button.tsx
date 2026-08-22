@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ActivityIndicator, Platform, Pressable, type PressableProps, StyleSheet, type ViewStyle, View } from "react-native";
 import { colors } from "../tokens/colors";
+import { controlHeight } from "../tokens/layout";
 import { radii } from "../tokens/radii";
 import { spacing } from "../tokens/spacing";
 import { Text } from "./Text";
@@ -80,6 +81,11 @@ export function Button({
 
   return (
     <Pressable
+      // `rest` first, our own props last — if this Button is ever used as
+      // an expo-router `Link asChild` child (as NavLink already is), Slot
+      // injects its own `style` prop when cloning; ours must win. See
+      // NavLink.tsx for the concrete bug this ordering prevents.
+      {...rest}
       disabled={isDisabled}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
@@ -109,6 +115,7 @@ export function Button({
             borderColor: c.border,
             paddingVertical,
             paddingHorizontal,
+            minHeight: controlHeight[size],
             width: fullWidth ? "100%" : undefined,
             alignSelf,
             opacity: isDisabled && variant === "ghost" ? 0.5 : 1,
@@ -116,7 +123,6 @@ export function Button({
           focused && !isDisabled ? styles.focusRing : null,
         ];
       }}
-      {...rest}
     >
       {loading ? (
         <ActivityIndicator size="small" color={variant === "secondary" || variant === "ghost" ? colors.brand[500] : colors.textOnBrand} />

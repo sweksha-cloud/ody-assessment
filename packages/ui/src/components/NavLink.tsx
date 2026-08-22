@@ -1,13 +1,17 @@
 import { forwardRef, useState } from "react";
 import { Platform, Pressable, type PressableProps, StyleSheet, type View } from "react-native";
 import { colors } from "../tokens/colors";
+import { controlHeight } from "../tokens/layout";
 import { radii } from "../tokens/radii";
+import { spacing } from "../tokens/spacing";
 import { Text } from "./Text";
 
 export type NavLinkProps = Omit<PressableProps, "children" | "style"> & {
   label: string;
   active?: boolean;
 };
+
+const INDICATOR_HEIGHT = 2;
 
 // Routing-agnostic nav link primitive — hover/focus/press/active states
 // live here so every nav bar gets them for free. Navigation itself (an
@@ -33,6 +37,15 @@ export const NavLink = forwardRef<View, NavLinkProps>(function NavLink(
   return (
     <Pressable
       ref={ref}
+      // `rest` spreads first, `style`/accessibility props last: expo-router's
+      // `Link asChild` (via Radix's Slot) clones this element and injects
+      // its own `style`/`onClick`/href-related props at runtime — TS's
+      // `Omit<PressableProps, "style">` only hides `style` from the type,
+      // it doesn't stop Slot injecting one anyway. Spread order decides
+      // the winner in JSX, so ours must come after or the injected style
+      // silently replaces this component's entire visual contract (this
+      // is exactly how the active-page border-bar first shipped invisible).
+      {...rest}
       accessibilityRole="link"
       {...currentPageProp}
       onHoverIn={(e) => {
@@ -53,16 +66,17 @@ export const NavLink = forwardRef<View, NavLinkProps>(function NavLink(
       }}
       style={({ pressed }) => [
         styles.base,
-        { opacity: pressed ? 0.7 : hovered ? 0.85 : 1 },
+        {
+          // Background tint for hover/press, matching Button's treatment —
+          // plain opacity dimming (the old approach) reads as "disabled,"
+          // not "hovered."
+          backgroundColor: pressed ? colors.neutral[200] : hovered ? colors.neutral[100] : "transparent",
+          borderBottomColor: active ? colors.brand[500] : "transparent",
+        },
         focused ? styles.focusRing : null,
       ]}
-      {...rest}
     >
-      <Text
-        variant="bodyMedium"
-        color={active ? "primary" : "secondary"}
-        style={active ? { textDecorationLine: "underline" } : undefined}
-      >
+      <Text variant="bodyMedium" color={active ? "primary" : "secondary"}>
         {label}
       </Text>
     </Pressable>
@@ -72,6 +86,14 @@ export const NavLink = forwardRef<View, NavLinkProps>(function NavLink(
 const styles = StyleSheet.create({
   base: {
     borderRadius: radii.sm,
+    // A bottom border-bar is the active-page indicator (set per-state
+    // above); reserved here at full width so the row's height never
+    // shifts between an inactive and an active item.
+    borderBottomWidth: INDICATOR_HEIGHT,
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
+    minHeight: controlHeight.sm,
+    justifyContent: "center",
   },
   focusRing: Platform.select({
     web: { outlineWidth: 2, outlineColor: colors.focusRing, outlineStyle: "solid", outlineOffset: 2 },
