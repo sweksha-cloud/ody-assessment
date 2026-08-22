@@ -254,3 +254,14 @@ reference a since-discontinued item.
   creation's inline "new customer" shape sidesteps it entirely with its
   own smaller, genuinely-optional schema. Worth tightening if this went
   past a take-home.
+- **Page-level information architecture is intentionally basic.** The
+  ServiceLine visual redesign was scoped to the app shell, design tokens,
+  and shared components — not a rewrite of each page's structure. Orders,
+  Menu, CRM, and Settings still don't have pagination, multi-column
+  sorting, or drill-down detail views; they're the same flows as before,
+  just rendered through the new primitives.
+- **Icons are plain glyph characters** (`#`, `$`, `!`, `◆`), not a real
+  icon set — a deliberate zero-new-dependency choice for `IconContainer`.
+  It reads correctly but is visibly less polished than a proper icon
+  library would be; swapping one in wouldn't touch any other token or
+  component.
