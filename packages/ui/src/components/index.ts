@@ -1,2 +1,14 @@
-// Shared UI primitives (buttons, inputs, cards, modals, etc.) — populated in Phase 5.
-export {};
+export * from "./Badge";
+export * from "./Button";
+export * from "./Card";
+export * from "./Divider";
+export * from "./EmptyState";
+export * from "./ErrorState";
+export * from "./Modal";
+export * from "./Select";
+export * from "./Spinner";
+export * from "./StatusBadge";
+export * from "./Switch";
+export * from "./Text";
+export * from "./TextField";
+export * from "./Toast";

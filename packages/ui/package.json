@@ -8,12 +8,17 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@odyssey/types": "workspace:*"
+  },
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
   },
   "devDependencies": {
     "@types/react": "~18.3.12",
+    "react": "18.3.1",
+    "react-native": "0.76.5",
     "typescript": "^5.7.0"
   },
   "volta": {

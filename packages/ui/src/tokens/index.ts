@@ -1,2 +1,7 @@
-// Design tokens (color, typography, spacing, radius, shadow, elevation) — populated in Phase 5.
-export {};
+export * from "./borders";
+export * from "./colors";
+export * from "./layout";
+export * from "./radii";
+export * from "./shadows";
+export * from "./spacing";
+export * from "./typography";
