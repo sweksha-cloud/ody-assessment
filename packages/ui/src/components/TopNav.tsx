@@ -5,6 +5,7 @@ import { focusRingStyle } from "../tokens/focusRing";
 import { breakpoints, layout } from "../tokens/layout";
 import { radii } from "../tokens/radii";
 import { spacing } from "../tokens/spacing";
+import { useHasMounted } from "../tokens/ssr";
 import { Modal } from "./Modal";
 
 export type TopNavProps = {
@@ -58,7 +59,8 @@ function HamburgerButton({ open, onPress }: { open: boolean; onPress: () => void
 // breakpoint) only, never routing.
 export function TopNav({ brand, children, activeKey }: TopNavProps) {
   const { width } = useWindowDimensions();
-  const isCompact = width < breakpoints.md;
+  const hasMounted = useHasMounted();
+  const isCompact = hasMounted && width < breakpoints.md;
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {

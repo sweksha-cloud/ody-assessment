@@ -1,4 +1,4 @@
-import { breakpoints, Logo, NavLink, TopNav } from "@odyssey/ui";
+import { breakpoints, Logo, NavLink, TopNav, useHasMounted } from "@odyssey/ui";
 import { Link, usePathname } from "expo-router";
 import { useWindowDimensions } from "react-native";
 
@@ -14,10 +14,14 @@ const NAV_ITEMS = [
 export function NavBar() {
   const pathname = usePathname();
   const { width } = useWindowDimensions();
+  const hasMounted = useHasMounted();
   // The compact "Restaurant Ops" descriptor only fits once the nav links
   // themselves have room to breathe — a stricter threshold than TopNav's
-  // own mobile/desktop collapse.
-  const showDescriptor = width >= breakpoints.lg;
+  // own mobile/desktop collapse. Gated on hasMounted for the same reason
+  // TopNav's isCompact is: this static-exported page has no real window
+  // during its server render, so trusting `width` on the very first
+  // client render mismatches the server-rendered markup.
+  const showDescriptor = hasMounted && width >= breakpoints.lg;
 
   return (
     <TopNav brand={<Logo tone="dark" descriptor={showDescriptor ? "compact" : "none"} />} activeKey={pathname}>
