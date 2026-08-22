@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# build artifacts
+dist/
+.turbo/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.*.local
+.dev.vars
+!.env.example
+!.dev.vars.example
+
+# Expo
+.expo/
+.expo-shared/
+web-build/
+
+# misc
+.DS_Store
+coverage/

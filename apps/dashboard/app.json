@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "odyssey-dashboard",
+    "slug": "odyssey-dashboard",
+    "scheme": "odyssey-dashboard",
+    "version": "0.1.0",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {}
+  }
+}

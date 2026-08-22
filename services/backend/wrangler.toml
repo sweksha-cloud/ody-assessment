@@ -1,0 +1,7 @@
+name = "odyssey-backend"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# DATABASE_URL is read from `.dev.vars` locally (gitignored) and set as a
+# Worker secret in production via `wrangler secret put DATABASE_URL`.
