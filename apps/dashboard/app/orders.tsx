@@ -3,6 +3,7 @@ import {
   getGetKpisQueryKey,
   getGetOrdersQueryKey,
   useGetCustomers,
+  useGetMenuCategories,
   useGetMenuItems,
   useGetOrders,
   useGetSettings,
@@ -24,7 +25,6 @@ import {
   Spinner,
   StatusBadge,
   STATUS_LABELS,
-  Switch,
   Text,
   TextField,
   useToast,
@@ -34,6 +34,8 @@ import { useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
 
 type FilterValue = "all" | OrderStatus;
+
+const NEW_CUSTOMER_VALUE = "__new__";
 
 const FILTERS: { value: FilterValue; label: string }[] = [
   { value: "all", label: "All" },
@@ -178,24 +180,35 @@ function CreateOrderModal({ open, onClose }: { open: boolean; onClose: () => voi
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
+  const categoriesQuery = useGetMenuCategories();
   const menuItemsQuery = useGetMenuItems();
   const customersQuery = useGetCustomers();
   const settingsQuery = useGetSettings();
 
-  const [isNewCustomer, setIsNewCustomer] = useState(false);
   const [customerId, setCustomerId] = useState("");
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newCustomerEmail, setNewCustomerEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<LineState>({});
 
+  const isNewCustomer = customerId === NEW_CUSTOMER_VALUE;
+
   const availableItems = useMemo(
     () => (menuItemsQuery.data?.data ?? []).filter((item) => item.isAvailable),
     [menuItemsQuery.data],
   );
 
+  const categorizedItems = useMemo(() => {
+    const categories = categoriesQuery.data?.data ?? [];
+    return categories
+      .map((category) => ({
+        category,
+        items: availableItems.filter((item) => item.categoryId === category.id),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [categoriesQuery.data, availableItems]);
+
   function reset() {
-    setIsNewCustomer(false);
     setCustomerId("");
     setNewCustomerName("");
     setNewCustomerEmail("");
@@ -259,7 +272,8 @@ function CreateOrderModal({ open, onClose }: { open: boolean; onClose: () => voi
     });
   }
 
-  const isLoading = menuItemsQuery.isLoading || customersQuery.isLoading || settingsQuery.isLoading;
+  const isLoading =
+    categoriesQuery.isLoading || menuItemsQuery.isLoading || customersQuery.isLoading || settingsQuery.isLoading;
 
   return (
     <Modal visible={open} onClose={close} title="New order">
@@ -268,9 +282,18 @@ function CreateOrderModal({ open, onClose }: { open: boolean; onClose: () => voi
           <Spinner label="Loading menu…" />
         ) : (
           <>
-            <Switch label="New customer" value={isNewCustomer} onValueChange={setIsNewCustomer} />
+            <Select
+              label="Customer"
+              value={customerId}
+              onChange={setCustomerId}
+              placeholder="Choose a customer"
+              options={[
+                { value: NEW_CUSTOMER_VALUE, label: "+ Add new customer" },
+                ...(customersQuery.data?.data ?? []).map((c) => ({ value: c.id, label: c.name })),
+              ]}
+            />
 
-            {isNewCustomer ? (
+            {isNewCustomer && (
               <View style={{ gap: spacing[5] }}>
                 <TextField label="Name" value={newCustomerName} onChangeText={setNewCustomerName} />
                 <TextField
@@ -281,50 +304,60 @@ function CreateOrderModal({ open, onClose }: { open: boolean; onClose: () => voi
                   autoCapitalize="none"
                 />
               </View>
-            ) : (
-              <Select
-                label="Customer"
-                value={customerId}
-                onChange={setCustomerId}
-                placeholder="Choose a customer"
-                options={(customersQuery.data?.data ?? []).map((c) => ({ value: c.id, label: c.name }))}
-              />
             )}
 
             <Divider />
 
-            <View style={{ gap: spacing[4] }}>
+            <View style={{ gap: spacing[5] }}>
               <Text variant="label" color="secondary">
                 ITEMS
               </Text>
-              {availableItems.length === 0 ? (
+              {categorizedItems.length === 0 ? (
                 <Text variant="body" color="secondary">
                   No available menu items.
                 </Text>
               ) : (
-                availableItems.map((item) => {
-                  const qty = lines[item.id] ?? 0;
-                  return (
-                    <View
-                      key={item.id}
-                      style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing[4] }}
-                    >
-                      <View style={{ flex: 1, gap: spacing[1] }}>
-                        <Text variant="body">{item.name}</Text>
-                        <Text variant="caption" color="muted">
-                          {formatCents(item.priceCents)}
-                        </Text>
-                      </View>
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
-                        <Button label="−" size="sm" variant="secondary" disabled={qty === 0} onPress={() => setQuantity(item.id, qty - 1)} />
-                        <Text variant="bodyMedium" style={{ minWidth: 20, textAlign: "center" }}>
-                          {qty}
-                        </Text>
-                        <Button label="+" size="sm" variant="secondary" onPress={() => setQuantity(item.id, qty + 1)} />
-                      </View>
-                    </View>
-                  );
-                })
+                categorizedItems.map(({ category, items }) => (
+                  <View key={category.id} style={{ gap: spacing[3] }}>
+                    <Text variant="bodyMedium" color="secondary">
+                      {category.name}
+                    </Text>
+                    {items.map((item) => {
+                      const qty = lines[item.id] ?? 0;
+                      return (
+                        <View
+                          key={item.id}
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: spacing[4],
+                          }}
+                        >
+                          <View style={{ flex: 1, gap: spacing[1] }}>
+                            <Text variant="body">{item.name}</Text>
+                            <Text variant="caption" color="muted">
+                              {formatCents(item.priceCents)}
+                            </Text>
+                          </View>
+                          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[3] }}>
+                            <Button
+                              label="−"
+                              size="sm"
+                              variant="secondary"
+                              disabled={qty === 0}
+                              onPress={() => setQuantity(item.id, qty - 1)}
+                            />
+                            <Text variant="bodyMedium" style={{ minWidth: 20, textAlign: "center" }}>
+                              {qty}
+                            </Text>
+                            <Button label="+" size="sm" variant="secondary" onPress={() => setQuantity(item.id, qty + 1)} />
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))
               )}
             </View>
 
