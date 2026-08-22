@@ -200,19 +200,51 @@ reference a since-discontinued item.
   transaction support (`db.transaction()` throws by design). Order
   creation uses `db.batch()` instead, with client-generated UUIDs so the
   customer/order/order-items inserts succeed or fail together.
-- **Automated tests**: Vitest everywhere, no Jest. `services/backend`
-  exercises the key order flows (`test/orders.test.ts`) end-to-end through
-  the actual Hono routes against an ephemeral PGlite Postgres (migrated
-  with the same SQL the real database runs) — required-field validation,
-  rejecting unavailable menu items and unknown customers, server-computed
-  totals, and every leg of the order status state machine including
-  terminal-state and unknown-order-id cases. `packages/shared` exhaustively
-  tests the state machine's full transition matrix plus money formatting.
-  `apps/dashboard` tests the extracted order-total preview logic
-  (`lib/orderPreview.ts`) and a couple of `@odyssey/ui` component states
-  (disabled/loading `Button`, `StatusBadge` label mapping) via
-  `@testing-library/react` against `react-native-web`, the same
-  substitution Expo's web bundler makes at build time. Not exhaustive —
-  no coverage of menu/customers/settings/KPI routes or the remaining
-  dashboard pages — but every "key order flow" the assignment calls out is
-  covered.
+- **Automated tests**: Vitest everywhere, no Jest — 129 tests across the
+  three packages that have them.
+
+  - `services/backend` (41 tests, 5 files) runs every route group
+    end-to-end through the actual Hono app against an ephemeral PGlite
+    Postgres (migrated with the same SQL the real database runs), not a
+    mocked db layer: orders (validation, unavailable/unknown-item and
+    unknown-customer rejection, server-computed totals, every leg of the
+    status state machine including terminal-state and unknown-id cases),
+    menu categories/items (CRUD, sort order, the soft-delete-via-
+    `isAvailable` path), customers (CRUD, the computed `orderCount`/
+    `totalSpentCents` stats and that cancelled orders are excluded from
+    spend), settings (get/update, the uninitialized-row 500 case), and
+    KPIs (the today-scoped revenue/order-count window excluding
+    cancelled orders, the not-time-scoped pending count, and the
+    trailing-30-day popular-items ranking).
+  - `packages/shared` (54 tests, 3 files) exhaustively tests the order
+    state machine's full transition matrix, money formatting, and date
+    formatting (`formatRelativeTime`'s minute/hour/day thresholds under
+    fake timers).
+  - `apps/dashboard` (34 tests, 8 files) tests the extracted order-total
+    preview logic (`lib/orderPreview.ts`) and the interactive
+    `@odyssey/ui` primitives that have real logic worth verifying —
+    `Button` (disabled/loading), `StatusBadge`, `Modal` (backdrop vs.
+    content-click dismissal), `Select` (open/pick/disabled), `Switch`,
+    `TextField` (error vs. helper text, typing), and `ToastProvider`
+    (show + real-timer auto-dismiss) — via `@testing-library/react`
+    against `react-native-web`, the same substitution Expo's web bundler
+    makes at build time.
+
+  Not exhaustive: the dashboard **pages** themselves (Home, Orders, Menu,
+  CRM, Settings) have no integration-level render tests, and a few
+  presentational `@odyssey/ui` components (Card, Badge, Divider, Spinner,
+  Skeleton, List/ListRow, TopNav/NavLink) have none either — they're pure
+  layout with no branching logic to regress. Every route and every stateful
+  primitive does.
+
+  One quirk the backend test suite surfaces and documents rather than
+  papering over: `POST /menu/categories`, `POST /menu/items`, and
+  `POST /customers` validate against a schema built from the Drizzle
+  *select* schema, so nullable/defaulted columns (`sortOrder`, `email`,
+  `phone`, `description`, `imageUrl`, ...) come through as *required-but-
+  nullable* rather than optional — a caller must send `null`/the default
+  explicitly instead of omitting the field. The dashboard's own create
+  flows already do this correctly (see `menu.tsx`/`crm.tsx`); order
+  creation's inline "new customer" shape sidesteps it entirely with its
+  own smaller, genuinely-optional schema. Worth tightening if this went
+  past a take-home.
