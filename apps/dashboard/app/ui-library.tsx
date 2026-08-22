@@ -10,6 +10,7 @@ import {
   List,
   ListRow,
   Modal,
+  NavLink,
   neutral,
   Select,
   Skeleton,
@@ -19,6 +20,7 @@ import {
   Switch,
   Text,
   TextField,
+  TopNav,
   typography,
   useToast,
 } from "@odyssey/ui";
@@ -63,6 +65,7 @@ export default function UiLibraryScreen() {
   const [selectValue, setSelectValue] = useState<(typeof ORDER_STATUSES)[number]>("pending");
   const [modalOpen, setModalOpen] = useState(false);
   const [loadingDemo, setLoadingDemo] = useState(false);
+  const [activeNavDemo, setActiveNavDemo] = useState("Home");
 
   return (
     <ScrollView contentContainerStyle={{ backgroundColor: colors.background }}>
@@ -242,6 +245,23 @@ export default function UiLibraryScreen() {
                 }
               />
             </List>
+          </View>
+        </Section>
+
+        <Divider />
+
+        <Section title="Navigation">
+          <View style={{ gap: spacing[3] }}>
+            <Text variant="label" color="secondary">
+              TOPNAV + NAVLINK — the actual bar rendered in the app shell (apps/dashboard/components/NavBar.tsx),
+              which just wires these to expo-router's Link. Click a link below to try the active/hover/focus
+              states — tab to one to see the focus ring.
+            </Text>
+            <TopNav brand={<Text variant="h3">🍊 Odyssey</Text>}>
+              {["Home", "Orders", "Menu", "Customers", "Settings"].map((label) => (
+                <NavLink key={label} label={label} active={activeNavDemo === label} onPress={() => setActiveNavDemo(label)} />
+              ))}
+            </TopNav>
           </View>
         </Section>
 
