@@ -32,6 +32,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
+import { computeOrderPreviewTotals } from "../lib/orderPreview";
 
 type FilterValue = "all" | OrderStatus;
 
@@ -234,13 +235,12 @@ function CreateOrderModal({ open, onClose }: { open: boolean; onClose: () => voi
   }
 
   const selectedLines = Object.entries(lines);
-  const subtotalCents = selectedLines.reduce((sum, [menuItemId, qty]) => {
-    const item = availableItems.find((i) => i.id === menuItemId);
-    return sum + (item ? item.priceCents * qty : 0);
-  }, 0);
   const taxRatePercent = settingsQuery.data ? Number.parseFloat(settingsQuery.data.data.taxRatePercent) : 0;
-  const taxCents = Math.round(subtotalCents * (taxRatePercent / 100));
-  const totalCents = subtotalCents + taxCents;
+  const { subtotalCents, taxCents, totalCents } = computeOrderPreviewTotals(
+    selectedLines.map(([menuItemId, quantity]) => ({ menuItemId, quantity })),
+    availableItems,
+    taxRatePercent,
+  );
 
   const createOrder = usePostOrders({
     mutation: {
