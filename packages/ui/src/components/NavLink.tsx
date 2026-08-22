@@ -24,11 +24,17 @@ export const NavLink = forwardRef<View, NavLinkProps>(function NavLink(
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
 
+  // aria-selected isn't valid ARIA on role="link" (only option/tab/row/...
+  // support it) — "current page" is the right semantic for an active nav
+  // link, via aria-current. react-native-web forwards this prop straight
+  // to the DOM, but RN's bundled types don't declare it, hence the cast.
+  const currentPageProp: Record<string, unknown> = active ? { "aria-current": "page" } : {};
+
   return (
     <Pressable
       ref={ref}
       accessibilityRole="link"
-      accessibilityState={{ selected: active }}
+      {...currentPageProp}
       onHoverIn={(e) => {
         setHovered(true);
         onHoverIn?.(e);
